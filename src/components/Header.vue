@@ -1,10 +1,10 @@
 <template>
-  <nav class="navbar navbar-expand-lg navbar-light bg-info">
-    <div class="container position-relative">
+  <nav class="navbar navbar-expand-lg navbar-light mb-5">
+    <div class="container p-1 position-relative">
 
       <!-- Toggler -->
       <button
-        class="navbar-toggler position-absolute start-0"
+        class="navbar-toggler"
         type="button"
         data-bs-toggle="collapse"
         data-bs-target="#navbarNav"
@@ -15,36 +15,240 @@
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <!-- Centered logo -->
-      <a class="navbar-brand mx-auto position-absolute start-50 translate-middle-x" href="/">
-        <img src="/sneakvue-logo.png" alt="" width="30" height="24" class="d-inline-block align-text-center">
-        <span class="logo-text ms-2 fw-bold">Sneak<span class="text-danger">Vue</span></span>
+      <!-- Logo -->
+      <a class="navbar-brand logo-position text-center" href="/">
+        <img src="/sneakvue-logo.png" alt="" width="30" height="25" class="logo d-inline-block align-text-center">
+        <div class="text-logo ms-2" style="font-family: 'Amarante', serif;">Sneak<span class="text-danger">Vue</span></div>
       </a>
 
-      <!-- Menu -->
+      <!-- Menu (collapses on mobile) -->
       <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav me-auto">
-          <li class="nav-item"><router-link class="nav-link" to="/">Home</router-link></li>
-          <li class="nav-item"><router-link class="nav-link" to="/products">Products</router-link></li>
-          <li class="nav-item"><router-link class="nav-link" to="/news">News</router-link></li>
-          <li class="nav-item"><router-link class="nav-link" to="/about">About</router-link></li>
+        <ul class="navbar-nav me-auto gap-2">
+          <li class="nav-item"><router-link class="nav-link" to="/">Home</router-link></li> 
+          <li class="nav-item"><router-link class="nav-link" to="/news">News</router-link></li> 
+          <li class="nav-item"><router-link class="nav-link" to="/about">About</router-link></li> 
+          <li class="nav-item dropdown">
+            <router-link class="nav-link" to="/products" id="navbarDropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Products
+            </router-link>
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <div class="container">
+                <div class="row text-start">
+                  <!-- One column per gender -->
+                  <div
+                    v-for="(gender, index) in dataGender"
+                    :key="index"
+                    class="col-md-2 mb-3"
+                  >
+                    <h6 class="fw-bold text-danger pb-1 mb-2" style="text-transform: uppercase; letter-spacing: 2px;">
+                      {{ gender }}
+                    </h6>
+
+                    <div class="nav-item text-dark py-1">                      
+                      <router-link class="fw-normal" to="">All categories</router-link>
+                    </div>
+
+                    <div
+                      v-for="(type, i) in typeFilter(gender)"
+                      :key="i"
+                      class="nav-item text-dark py-1"
+                    >
+                      <router-link class="fw-normal" to="">{{ type }}</router-link>
+                    </div>
+                  </div>
+                  <div class="col-md-6 d-flex justify-content-end">
+                    <div
+                      class="card promo-card text-center border-0 shadow rounded-2 p-4 pt-2"
+                      role="img"
+                      aria-label="Promotional image card" 
+                    >
+                      <div class="card-body p-0 d-flex align-items-end justify-content-center">
+                        <router-link class="card-text fw-normal" to="">NEW-IN <i class="bi bi-arrow-right"></i></router-link>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </ul>
+          </li>
         </ul>
+
+        <!-- Login buttons -->
+        <div class="d-flex ms-auto">
+          <button type="button" class="btn btn-danger me-2 rounded-0" style="text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem;">Login</button>
+          <button type="button" class="btn btn-outline-secondary me-2 rounded-0" style="text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem;">Sign Up</button>
+        </div>
       </div>
-
-      <!-- Login -->
-      <form class="d-flex ms-auto">
-        <button class="btn btn-outline-success me-2" type="button">Main button</button>
-        <button class="btn btn-sm btn-outline-secondary" type="button">Smaller button</button>
-      </form>
-
     </div>
   </nav>
-
 </template> 
 
+
+
+<script setup>
+  import { ref, onMounted } from 'vue';
+  import mockData from '../assets/mock-sneaker-data.json';
+ 
+  const data = ref([]);
+  const dataGender = ref(['Men', 'Women', 'Unisex']);
+
+  onMounted(() => {
+    data.value = mockData.map(d => d);
+  });
+
+  function typeFilter(gender) {
+    const filteredType = [...new Set(data.value.filter(d => d.gender === gender).map(d => d.type).toSorted())];
+    const index = filteredType.indexOf("Sneakers"); 
+
+    // Move the sneaker to top
+    if (index > -1) { 
+      filteredType.splice(index, 1); 
+      filteredType.unshift("Sneakers"); 
+    }
+    
+    return filteredType;
+  }
+</script>
+ 
+
+
 <style scoped>
-  .logo-text {
-    font-family: 'Roboto', Arial, Helvetica, sans-serif;
-    letter-spacing: 0.1em;
+  nav a.router-link-active {
+    color: #000000;
+    font-weight: bold;
+    text-decoration: none;
+  }
+
+  nav, .dropdown-menu {
+    background: linear-gradient(60deg, #ecf0f8 0%, #fae3e3 100%);
+  }
+
+  .nav-link {
+    color: #000000; 
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  } 
+
+  .logo-position {
+    margin-left: auto;
+  }
+
+  /* Large screens: logo centered */
+  @media (min-width: 992px) {
+    nav {
+      border-bottom: 1px solid #0000004d;
+      padding-top: 1.7rem;
+      padding-bottom: 1.7rem;
+    }
+
+    .logo {
+      margin-top: 10px;
+      scale: 1.4;
+    }
+
+    .logo-position {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .text-logo {
+      font-size: 1.5rem;
+      font-family: 'Roboto';
+      margin-top: 7px;
+      letter-spacing: 2px;
+    }
+
+    .nav-item:hover {
+      cursor: pointer;
+      text-decoration: underline;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 5px;
+      color: #9b9b9b;
+    }
+
+    .dropdown-menu {
+      position: fixed !important;
+      left: 0 !important;
+      right: 0 !important;
+      width: 100% !important;
+      transform: none !important;
+      border-radius: 0;
+      border: none;
+      border-bottom: 1px solid #0000004d;
+      display: block !important; 
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+      margin-top: 20px;
+    }
+
+    .dropdown-menu::before {
+      content: '';
+      position: absolute;
+      top: -20px; 
+      left: 0;
+      right: 0;
+      height: 20px; 
+    }
+
+    .dropdown:hover > .dropdown-menu {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .promo-card {
+      position: relative;
+      overflow: hidden;
+      width: 18rem;           
+      height: 230px;         
+      flex-shrink: 0;        
+      background-image: url('../assets/images/yeezy-adidas.jpg');
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-size: cover;
+      background-color: #000000; 
+      transition: all 0.4s ease;
+    }
+
+    .promo-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background: linear-gradient(
+        130deg,
+        transparent 0% 33%,
+        #cce4ffab 66%,
+        #990000 83.5%,
+        #ca775e 100%
+      );
+      background-size: 250% 200%;
+      background-position: 0% 0%;
+      opacity: 0; 
+      transition: background-position 350ms ease, opacity 350ms ease;
+    }
+
+    .promo-card:hover::before {
+      background-position: 100% 100%;
+      opacity: 0.85;
+    }
+
+    .promo-card .card-text { 
+      color: #b8b8b8 !important; 
+      position: relative;
+      letter-spacing: 1px;
+      z-index: 2;
+      transition: all 0.2s; 
+    }
+
+    .promo-card:hover .card-text {
+      color: #fff !important;
+      letter-spacing: 2px;
+      font-weight: bolder !important; 
+      font-size: 1.2rem;
+    }
   }
 </style>

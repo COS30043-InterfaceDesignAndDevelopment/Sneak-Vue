@@ -11,11 +11,6 @@ const routes = [
     component: Home
   },
   {
-    path: '/products',
-    name: 'product',
-    component: Product
-  },
-  {
     path: '/news',
     name: 'news',
     component: News
@@ -24,7 +19,12 @@ const routes = [
     path: '/about',
     name: 'about',
     component: About
-  }
+  },
+  {
+    path: '/products',
+    name: 'product',
+    component: Product
+  } 
 ];
 
 const router = createRouter({
