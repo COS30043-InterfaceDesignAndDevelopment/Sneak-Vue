@@ -23,7 +23,7 @@
                 alt="Event Image"
                 class="img-fluid position-relative"
                 style="transition: transform 0.3s ease; z-index: 2; width: 450px;"
-                onmouseover="this.style.transform='scale(1.02)';"
+                onmouseover="this.style.transform='scale(1.05)';"
                 onmouseout="this.style.transform='scale(1)';"
               />
             </div>
@@ -38,7 +38,7 @@
       <!-- Section: Footwear -->
       <div>
         <h5 class="text-center mt-5 mb-4" style="letter-spacing: 2px;">FOOTWEAR</h5>
-        <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4">
+        <div class="row row-cols-2 row-cols-md-2 row-cols-lg-4">
           <div
             v-for="(product, index) in sneakerData.splice(0, 4)"
             :key="index"
@@ -73,7 +73,7 @@
       <!-- Section: Clothing -->
       <div>
         <h5 class="text-center mt-5 mb-4" style="letter-spacing: 2px;">CLOTHING</h5>
-        <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4">
+        <div class="row row-cols-2 row-cols-md-2 row-cols-lg-4">
           <div
             v-for="(product, index) in clothingData.splice(0, 4)"
             :key="index"
@@ -112,7 +112,7 @@
 
 <script setup>
   import { ref, onMounted } from 'vue';
-  import mockData from '../assets/mock-sneaker-data.json';
+  import mockData from '../assets/data/mock-sneaker-data.json';
 
   const data = ref([]);
   const sneakerData = ref([]);
@@ -184,6 +184,7 @@
   .card {
     border: 1px solid transparent;
     background-color: transparent;
+    cursor: pointer;
   } 
 
   .btn-view {

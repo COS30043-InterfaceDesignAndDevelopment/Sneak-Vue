@@ -1,5 +1,5 @@
 <template>
-  <nav class="navbar navbar-expand-lg navbar-light mb-5">
+  <nav :class="['navbar', { 'navbar-hidden': !showNavbar }]" class="navbar-expand-lg navbar-light mb-5 sticky-top">
     <div class="container p-1 position-relative">
 
       <!-- Toggler -->
@@ -58,7 +58,7 @@
                   </div>
                   <div class="col-md-6 d-flex justify-content-end">
                     <div
-                      class="card promo-card text-center border-0 shadow rounded-2 p-4 pt-2"
+                      class="card promo-card text-center border-0 shadow rounded-0 p-4 pt-2"
                       role="img"
                       aria-label="Promotional image card" 
                     >
@@ -75,8 +75,7 @@
 
         <!-- Login buttons -->
         <div class="d-flex ms-auto">
-          <button type="button" class="btn btn-danger me-2 rounded-0" style="text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem;">Login</button>
-          <button type="button" class="btn btn-outline-secondary me-2 rounded-0" style="text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem;">Sign Up</button>
+          <router-link class="nav-link" to="/login"><i class="bi bi-person" style="font-size: 1.75rem;"></i></router-link>
         </div>
       </div>
     </div>
@@ -86,27 +85,45 @@
 
 
 <script setup>
-  import { ref, onMounted } from 'vue';
-  import mockData from '../assets/mock-sneaker-data.json';
+  import { ref, onMounted, onBeforeUnmount } from 'vue';
+  import mockData from '../assets/data/mock-sneaker-data.json';
  
   const data = ref([]);
   const dataGender = ref(['Men', 'Women', 'Unisex']);
+  const showNavbar = ref(true);
+  const lastScrollPosition = ref(0);
 
   onMounted(() => {
     data.value = mockData.map(d => d);
+    window.addEventListener('scroll', handleScroll);
   });
+
+  onBeforeUnmount(() => {
+    window.removeEventListener('scroll', handleScroll);
+  })
 
   function typeFilter(gender) {
     const filteredType = [...new Set(data.value.filter(d => d.gender === gender).map(d => d.type).toSorted())];
     const index = filteredType.indexOf("Sneakers"); 
 
-    // Move the sneaker to top
+    // Move the "Sneakers" to top
     if (index > -1) { 
       filteredType.splice(index, 1); 
       filteredType.unshift("Sneakers"); 
     }
     
     return filteredType;
+  }
+
+  function handleScroll() {
+    const currentScrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+
+    if (Math.abs(currentScrollPosition - lastScrollPosition.value) < 50) {
+      return;
+    }
+
+    showNavbar.value = currentScrollPosition < lastScrollPosition.value || currentScrollPosition === 0;
+    lastScrollPosition.value = currentScrollPosition;
   }
 </script>
  
@@ -121,6 +138,11 @@
 
   nav, .dropdown-menu {
     background: linear-gradient(60deg, #ecf0f8 0%, #fae3e3 100%);
+    z-index: 10 !important;
+  }
+
+  .navbar-hidden {
+    transform: translateY(-500%); 
   }
 
   .nav-link {

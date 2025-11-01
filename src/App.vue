@@ -1,19 +1,14 @@
 <template>
   <div class="site">
-    <Header></Header>
+    <Header v-if="!$route.meta.hideComponents"></Header>
     <main>
       <router-view></router-view>
     </main>
-    <Footer></Footer>  
+    <Footer v-if="!$route.meta.hideComponents"></Footer>  
   </div>
 </template>
 
 <script setup>
   import Header from './components/Header.vue';
-  import Footer from './components/Footer.vue';
-
+  import Footer from './components/Footer.vue'; 
 </script>
-
-<style scoped>
-
-</style>
