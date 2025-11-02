@@ -10,22 +10,12 @@ const routes = [
   { path: '/news', name: 'news', component: News },
   { path: '/about', name: 'about', component: About },
   { path: '/products', name: 'product',component: Product },
-  { path: '/login', name: 'login', component: Login, meta: { hideComponents: true }}
+  { path: '/login', name: 'login', component: Login }
 ];
 
 const router = createRouter({
   history: createWebHistory(),
   routes
-});
-
-router.beforeEach((to, from, next) => {
-  // Check user information in localStorage
-  const loggedIn = localStorage.getItem('user');  
-  if (to.meta.requiresAuth && !loggedIn) {
-    next('/login');
-  } else {
-    next();
-  }
-});
+}); 
 
 export default router;

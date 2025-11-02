@@ -152,59 +152,12 @@
     color: #000;
     margin-bottom: 20px;
   }
- 
-  .btn-discover-wrapper {
-    display: inline-block;
-    filter: drop-shadow(8px 8px 0px #b11414);
-    transition: filter 0.3s ease, transform 0.3s ease;
-  }
-
-  .btn-discover-wrapper:hover {
-    filter: none;
-    transform: translateY(-3px);
-  }
-
-  .btn-discover {
-    padding: 16px 40px;
-    background: #f8fafd;
-    color: rgb(0, 0, 0);
-    font-weight: 600;
-    border-radius: 0;
-    border: 1px solid black;
-    clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 100%, 0 100%);
-    transition: all 0.3s ease;
-  }
-
-  .btn-discover:hover {
-    background-color: #b11414;
-    color: white;
-    border: 1px solid transparent;
-  }
 
   .card {
     border: 1px solid transparent;
     background-color: transparent;
     cursor: pointer;
   } 
-
-  .btn-view {
-    padding: 10px 40px;
-    background: #f8fafd;
-    filter: drop-shadow(3px 3px 0px #b11414);
-    color: #000000;
-    font-weight: 600;
-    border-radius: 0;
-    border: 1px solid black;
-    transition: all 0.3s ease;
-  }
-
-  .btn-view:hover {
-    background-color: #b11414;
-    filter: none;
-    transform: translateY(-3px);
-    color: white;
-    border: 1px solid transparent;
-  }
 
   .full-image-section {
     height: 500px; 

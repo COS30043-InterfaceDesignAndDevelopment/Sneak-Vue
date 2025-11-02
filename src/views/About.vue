@@ -123,24 +123,5 @@
     font-weight: bold;
     color: #666;
     margin-bottom: 15px;
-  }
-
-  .btn-view {
-    padding: 10px 40px;
-    background: #f8fafd;
-    filter: drop-shadow(3px 3px 0px #b11414);
-    color: #000000;
-    font-weight: 600;
-    border-radius: 0;
-    border: 1px solid black;
-    transition: all 0.3s ease;
-  }
-
-  .btn-view:hover {
-    background-color: #b11414;
-    filter: none;
-    transform: translateY(-3px);
-    color: white;
-    border: 1px solid transparent;
-  }  
+  } 
 </style>

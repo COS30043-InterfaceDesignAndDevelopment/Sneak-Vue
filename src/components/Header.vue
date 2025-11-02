@@ -1,25 +1,31 @@
 <template>
-  <nav :class="['navbar', { 'navbar-hidden': !showNavbar }]" class="navbar-expand-lg navbar-light mb-5 sticky-top">
+  <nav :class="['navbar', { 'navbar-hidden': !showNavbar }]" class="navbar-expand-lg navbar-light mb-5">
     <div class="container p-1 position-relative">
+      <div class="d-flex w-100 align-items-center">
+        <!-- Toggler -->
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
 
-      <!-- Toggler -->
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#navbarNav"
-        aria-controls="navbarNav"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
+        <!-- Logo -->
+        <a class="navbar-brand logo-position text-center" href="/">
+          <img src="/sneakvue-logo.png" alt="" width="30" height="25" class="logo d-inline-block align-text-center">
+          <div class="text-logo ms-2" style="font-family: 'Amarante', serif;">Sneak<span class="text-danger">Vue</span></div>
+        </a>
 
-      <!-- Logo -->
-      <a class="navbar-brand logo-position text-center" href="/">
-        <img src="/sneakvue-logo.png" alt="" width="30" height="25" class="logo d-inline-block align-text-center">
-        <div class="text-logo ms-2" style="font-family: 'Amarante', serif;">Sneak<span class="text-danger">Vue</span></div>
-      </a>
+        <!-- Login buttons -->
+        <div class="d-flex ms-auto">
+          <router-link class="nav-link" to="/login"><i class="bi bi-person" style="font-size: 1.75rem;"></i></router-link>
+        </div>
+      </div>
 
       <!-- Menu (collapses on mobile) -->
       <div class="collapse navbar-collapse" id="navbarNav">
@@ -62,7 +68,7 @@
                       role="img"
                       aria-label="Promotional image card" 
                     >
-                      <div class="card-body p-0 d-flex align-items-end justify-content-center">
+                      <div class="card-body p-0 pt-3 d-flex align-items-end justify-content-center">
                         <router-link class="card-text fw-normal" to="">NEW-IN <i class="bi bi-arrow-right"></i></router-link>
                       </div>
                     </div>
@@ -72,11 +78,6 @@
             </ul>
           </li>
         </ul>
-
-        <!-- Login buttons -->
-        <div class="d-flex ms-auto">
-          <router-link class="nav-link" to="/login"><i class="bi bi-person" style="font-size: 1.75rem;"></i></router-link>
-        </div>
       </div>
     </div>
   </nav>
@@ -141,10 +142,6 @@
     z-index: 10 !important;
   }
 
-  .navbar-hidden {
-    transform: translateY(-500%); 
-  }
-
   .nav-link {
     color: #000000; 
     font-size: 0.9rem;
@@ -153,15 +150,40 @@
   } 
 
   .logo-position {
-    margin-left: auto;
+    margin-left: auto; 
   }
 
-  /* Large screens: logo centered */
+  /* Mobile */
+  @media (max-width: 991px) {
+    .d-flex.w-100 {
+      display: flex !important;
+    } 
+    nav, .dropdown-menu {
+      padding-inline: 8px;
+    }
+  }
+
+  /* Large screens */
   @media (min-width: 992px) {
+    .d-flex.w-100 {display: contents !important;}
+    .navbar-toggler {order: 1;}
+    .navbar-brand {order: 2;}
+    .navbar-collapse {order: 2;}
+    .d-flex.ms-auto {
+      order: 3;
+      margin-left: auto !important;
+    }
+
+    .navbar-hidden {
+      transform: translateY(-500%); 
+    }
+    
     nav {
       border-bottom: 1px solid #0000004d;
       padding-top: 1.7rem;
       padding-bottom: 1.7rem;
+      position: sticky;
+      top: 0; 
     }
 
     .logo {
