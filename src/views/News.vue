@@ -120,7 +120,7 @@
     return Math.ceil(filteredNews.value.length / itemsPerPage.value);
   });
 
-  function searchNews() {
+  const searchNews = () => {
     currentPage.value = 1;
     if (filterItem.value === "all") {
       filteredNews.value = news.value.filter(n => {
@@ -136,19 +136,19 @@
     }
   }
 
-  function prevPage() {
+  const prevPage = () => {
     if (currentPage.value > 1) {
       currentPage.value--;
     }
   }
 
-  function nextPage() {
+  const nextPage = () => {
     if (currentPage.value < totalPages.value) {
       currentPage.value++;
     }
   }
 
-  function goToPage(page) {
+  const goToPage = (page) => {
     currentPage.value = page;
   }
 </script>

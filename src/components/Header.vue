@@ -34,7 +34,7 @@
           <li class="nav-item"><router-link class="nav-link" to="/news">News</router-link></li> 
           <li class="nav-item"><router-link class="nav-link" to="/about">About</router-link></li> 
           <li class="nav-item dropdown">
-            <router-link class="nav-link" to="/products" id="navbarDropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <router-link class="nav-link" to="/products" id="navbarDropdown" type="button" :data-bs-toggle="dropdownToggle" aria-expanded="false">
               Products
             </router-link>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
@@ -63,15 +63,16 @@
                     </div>
                   </div>
                   <div class="col-md-6 d-flex justify-content-end">
-                    <div
+                    <router-link
                       class="card promo-card text-center border-0 shadow rounded-0 p-4 pt-2"
                       role="img"
                       aria-label="Promotional image card" 
+                      to="/products"
                     >
                       <div class="card-body p-0 pt-3 d-flex align-items-end justify-content-center">
-                        <router-link class="card-text fw-normal" to="">NEW-IN <i class="bi bi-arrow-right"></i></router-link>
+                        <div class="card-text fw-normal">NEW-IN <i class="bi bi-arrow-right"></i></div>
                       </div>
-                    </div>
+                    </router-link>
                   </div>
                 </div>
               </div>
@@ -86,7 +87,7 @@
 
 
 <script setup>
-  import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
+  import { ref, onMounted, onUnmounted, onBeforeUnmount, computed } from 'vue';
   import mockData from '../assets/data/mock-sneaker-data.json';
   import { authStore } from '../stores/auth';
  
@@ -95,21 +96,30 @@
   const dataGender = ref(['Men', 'Women', 'Unisex']);
   const showNavbar = ref(true);
   const lastScrollPosition = ref(0); 
+  const width = ref(window.innerWidth);
+
 
   onMounted(() => {
     data.value = mockData.map(d => d);
     window.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleResize);
   });
+
+  onUnmounted(() => {
+    window.removeEventListener('resize', handleResize);
+  })
 
   onBeforeUnmount(() => {
     window.removeEventListener('scroll', handleScroll);
   })
 
-  const authenticatedPath = computed(() => {
-    return auth.isAuthenticated ? '/user' : '/login';
-  });
+  const authenticatedPath = computed(() => auth.isAuthenticated ? '/user' : '/login');
+  const isMobile = computed(() => width.value < 992);
+  const dropdownToggle = computed(() => (isMobile.value ? 'dropdown' : ''));
 
-  function typeFilter(gender) {
+  const handleResize = () => width.value = window.innerWidth; 
+
+  const typeFilter = (gender) => {
     const filteredType = [...new Set(data.value.filter(d => d.gender === gender).map(d => d.type).toSorted())];
     const index = filteredType.indexOf("Sneakers"); 
 
@@ -122,7 +132,7 @@
     return filteredType;
   }
 
-  function handleScroll() {
+  const handleScroll = () => {
     const currentScrollPosition = window.pageYOffset || document.documentElement.scrollTop;
 
     if (Math.abs(currentScrollPosition - lastScrollPosition.value) < 50) {
@@ -260,6 +270,7 @@
       background-size: cover;
       background-color: #000000; 
       transition: all 0.4s ease;
+      text-decoration: none;
     }
 
     .promo-card::before {

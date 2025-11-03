@@ -10,7 +10,7 @@
             <h1 class="heading">Step into comfort that moves with you every mile</h1>
             <p class="mb-4">Discover our collection of Performance Footwear, engineered for optimal support and responsiveness. Every step you take is cushioned and propelled, giving you lasting comfort whether you’re covering a short distance or going the extra mile.</p>
             <div class="btn-discover-wrapper">
-              <a class="btn btn-discover pe-5">Shop Now</a>
+              <router-link class="btn btn-discover pe-5" to="/products">Shop Now</router-link>
             </div>
           </div>
 
@@ -60,7 +60,7 @@
           </div> 
           <div class="col-12 mx-auto mt-4 m-5">
             <div class="text-center border-0">
-              <button class="btn btn-view">VIEW ALL PRODUCTS <i class="bi bi-arrow-right"></i></button>
+              <router-link class="btn btn-view" to="/">VIEW ALL PRODUCTS <i class="bi bi-arrow-right"></i></router-link>
             </div>
           </div>
         </div>
@@ -95,7 +95,7 @@
           </div> 
           <div class="col-12 mx-auto mt-4 m-5">
             <div class="text-center border-0">
-              <button class="btn btn-view">VIEW ALL PRODUCTS <i class="bi bi-arrow-right"></i></button>
+              <router-link class="btn btn-view" to="/">VIEW ALL PRODUCTS <i class="bi bi-arrow-right"></i></router-link>
             </div>
           </div>
         </div>
