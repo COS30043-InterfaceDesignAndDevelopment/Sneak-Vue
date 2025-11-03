@@ -23,7 +23,7 @@
 
         <!-- Login buttons -->
         <div class="d-flex ms-auto">
-          <router-link class="nav-link" to="/login"><i class="bi bi-person" style="font-size: 1.75rem;"></i></router-link>
+          <router-link class="nav-link" :to="authenticatedPath"><i class="bi bi-person" style="font-size: 1.75rem;"></i></router-link> 
         </div>
       </div>
 
@@ -86,13 +86,15 @@
 
 
 <script setup>
-  import { ref, onMounted, onBeforeUnmount } from 'vue';
+  import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
   import mockData from '../assets/data/mock-sneaker-data.json';
+  import { authStore } from '../stores/auth';
  
   const data = ref([]);
+  const auth = authStore();
   const dataGender = ref(['Men', 'Women', 'Unisex']);
   const showNavbar = ref(true);
-  const lastScrollPosition = ref(0);
+  const lastScrollPosition = ref(0); 
 
   onMounted(() => {
     data.value = mockData.map(d => d);
@@ -102,6 +104,10 @@
   onBeforeUnmount(() => {
     window.removeEventListener('scroll', handleScroll);
   })
+
+  const authenticatedPath = computed(() => {
+    return auth.isAuthenticated ? '/user' : '/login';
+  });
 
   function typeFilter(gender) {
     const filteredType = [...new Set(data.value.filter(d => d.gender === gender).map(d => d.type).toSorted())];

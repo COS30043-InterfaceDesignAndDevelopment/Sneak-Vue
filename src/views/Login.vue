@@ -26,15 +26,17 @@
             <div class="login-icon"><i class="bi bi-facebook text-primary"></i></div>  
           </div>
 
-          <form method="post" action="http://mercury.swin.edu.au/it000000/formtest.php">
+          <form @submit.prevent="isRegistering ? register() : login()">
             <div id="registration" class="collapse col-12 mb-2">
               <input 
                 type="text" 
                 id="username" 
                 name="username" 
+                v-model="username"
                 placeholder="Username *"  
                 :required="isRegistering" 
                 minlength="5"
+                maxlength="20"
                 class="form-control rounded-0 py-2 border-black"/> 
             </div>
 
@@ -42,6 +44,7 @@
               type="email" 
               id="email" 
               name="email" 
+              v-model="email"
               placeholder="Email address *" 
               required 
               pattern=".+@.+\..+"
@@ -50,16 +53,22 @@
             
             <small class="text-muted">Must be at least 8 characters and include one special character ($%^&*).</small>
 
-            <input 
-              type="password" 
-              id="password" 
-              name="password" 
-              placeholder="Password *" 
-              v-model="password"
-              required 
-              minlength="8" 
-              pattern="^(?=.*[$%^&*]).{8,}$" 
-              class="form-control mb-2 rounded-0 py-2 border-black"/>
+            <div class="input-group">
+              <input 
+                :type="passwordFieldType" 
+                id="password" 
+                name="password" 
+                placeholder="Password *" 
+                v-model="password"
+                required 
+                minlength="8" 
+                pattern="^(?=.*[$%^&*]).{8,}$" 
+                class="form-control mb-2 rounded-0 py-2 border-black"/>
+
+              <button class="btn btn-transparent mb-2 rounded-0 py-2 border-black" type="button" @click="togglePasswordVisibility">
+                <i :class="eyeIconClass"></i>
+              </button>
+            </div>
 
             
             <div id="registration" class="collapse col-12 mb-2">
@@ -108,7 +117,13 @@
               </label>
             </div>
 
-            <button type="submit" :disabled="hasError" class="btn btn-view" style="font-size: 0.8rem !important;">CONTINUE <i class="bi bi-arrow-right"></i></button>
+            <div class="d-flex align-items-center">
+              <button type="submit" :disabled="hasError" class="btn btn-view" style="font-size: 0.8rem !important;">CONTINUE <i class="bi bi-arrow-right"></i></button>
+
+              <div v-if="isLoading" class="spinner-border text-danger ms-3" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+            </div>
           </form>
 
           <!-- Modal -->
@@ -137,16 +152,78 @@
 
 
 <script setup>
-  import { ref, computed } from 'vue';
+  import { ref, computed } from 'vue'; 
+  import { useRouter } from 'vue-router';
 
+  const API = "http://127.0.0.1:8000";
+  const router = useRouter();
+  const username = ref('');
+  const email = ref('');
   const password = ref('');
+  const showPassword = ref(false);
   const confirmPassword = ref('');
   const passwordError = ref('');
   const isRegistering = ref(false);
+  const isLoading = ref(false);
   
+  const passwordFieldType = computed(() => showPassword.value ? 'text' : 'password'); 
+  const eyeIconClass = computed(() => showPassword.value ? 'bi bi-eye-slash' : 'bi bi-eye');
+  const togglePasswordVisibility = () => showPassword.value = !showPassword.value;
   const passwordMatch = () => password.value != confirmPassword.value ? passwordError.value = "Passwords do not match!" : passwordError.value = ""; 
-  const hasError = computed(() => isRegistering.value && passwordError.value.length > 0)
+  const hasError = computed(() => isRegistering.value && passwordError.value.length > 0);
 
+  // Login function 
+  const login = async () => {  
+    isLoading.value = true;
+    const res = await fetch(`${API}/user/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: email.value,
+        password: password.value
+      })
+    }).then(res => res.json());
+
+    if (res.success) {
+      isLoading.value = false;
+      alert('Logged in successful!');
+      localStorage.setItem('token', res.token);
+      router.push('/user');
+    } else {
+      isLoading.value = false;
+      alert(res.message);
+    }
+  };
+
+
+  // Register function 
+  const register = async () => {  
+    isLoading.value = true;
+    const res = await fetch(`${API}/user/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username: username.value,
+        email: email.value,
+        password: password.value
+      })
+    }).then(res => res.json());
+
+    if (res.success) {
+      isLoading.value = false;
+      alert('Registration successful!\n-- PLEASE CONFIRM IN MAIL! --');
+      localStorage.setItem('token', res.token);
+      window.location.reload(); 
+      router.push('/login');
+    } else {
+      isLoading.value = false;
+      alert(res.message);
+    }
+  }; 
 </script>
 
 
