@@ -1,7 +1,7 @@
 <template>
   <div class="container mb-5"> 
     <div class="d-flex align-items-center">
-      <h1 class="heading">NEW-INS</h1>
+      <h1 class="heading">NEW-INS <span class="h6 text-muted">[{{ filteredProducts.length }}]</span></h1>
       <button 
         @click="toggleSidebar" 
         class="btn btn-filter border-black px-4 rounded-0 ms-auto"
@@ -22,7 +22,7 @@
     <!-- Main Products Content -->
     <div class="row row-cols-2 row-cols-lg-3 row-cols-xl-4">
       <div
-        v-for="product in pageOfProducts"
+        v-for="product in paginatedProducts"
         :key="product.product_id"
         class="col mb-1 g-3"
       >
@@ -42,30 +42,24 @@
       </div> 
     </div> 
 
-    <div class="page-number d-flex justify-content-center px-3 pt-3">
-      <ul v-if="pager.pages && pager.pages.length" class="pagination"> 
-        <li :class="{'disabled': pager.currentPage === 1}" class="page-item previous-item">
-          <router-link 
-            :to="{ query: { page: pager.currentPage - 1 }}" 
+    <div class="page-number d-flex justify-content-center px-3 mt-5">
+      <ul v-if="totalPages > 1" class="pagination"> 
+        <li :class="{'disabled': currentPage === 1}" class="page-item previous-item">
+          <a
+            @click="goToPage(currentPage - 1)"
             class="page-link me-3"
             style="clip-path: polygon(15% 0, 100% 0, 100% 100%, 0 100%); padding-left: 22px;"
             >Previous
-          </router-link>
-        </li>
-        <li 
-          v-for="page in pager.pages"
-          :key="page"
-          :class="{'active': pager.currentPage === page}"
-          class="page-item number-item">
-          <router-link :to="{ query: { page: page }}" class="page-link">{{ page }}</router-link>
-        </li>
-        <li :class="{'disabled': pager.currentPage === pager.totalPages }" class="page-item next-item">
-          <router-link 
-            :to="{ query: { page: pager.currentPage + 1 }}" 
+          </a>
+        </li> 
+        <p class="my-auto px-3" style="letter-spacing: 1.5px;">Page {{ currentPage }} of {{ totalPages }}</p> 
+        <li :class="{'disabled': currentPage === totalPages }" class="page-item next-item">
+          <a
+            @click="goToPage(currentPage + 1)"
             class="page-link ms-3" 
             style="clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 100%, 0 100%); padding-right: 22px;"
             >Next
-          </router-link>
+          </a>
         </li> 
       </ul>
     </div>
@@ -78,17 +72,18 @@
       @click="closeSidebar"
     ></div>
  
-    <div :class="['sidebar', { 'sidebar-open': isSidebarOpen }]" class="container">
+    <div :class="['sidebar', { 'sidebar-open': isSidebarOpen }]">
       <div class="sidebar-header">
         <h5 class="pt-2">Filter & Search</h5>
         <div class="d-flex align-items-center">
           <p 
             type="button" 
             class="remove my-auto"   
+            @click="resetFilter"
           >Remove all</p>
           <button 
             type="button" 
-            class="btn-close ms-3" 
+            class="btn-close ms-3 pe-0" 
             @click="closeSidebar"
             aria-label="Close"
           ></button> 
@@ -96,16 +91,100 @@
       </div>
       
       <div class="sidebar-body">
-        <div class="pt-2 pb-2 mx-auto w-100" style="max-width: 500px;">
+        <div class="p-3 px-3 w-100" style="max-width: 500px;">
           <div class="input-group">
-            <input type="text" class="form-control" placeholder="Search..." aria-label="Search" aria-describedby="search-addon">
-            <button class="btn btn-outline-secondary" type="button" id="search-addon">
-              <i class="bi bi-search"></i>
+            <input 
+              type="text" 
+              class="search" 
+              placeholder="Search by name..." 
+              aria-label="Search" 
+              aria-describedby="search-addon"
+              v-model="search">
+            <button class="delete-ic me-1 btn-outline-secondary ms-auto" @click="deleteSearch" type="button" id="search-addon">
+              <i class="bi bi-x-circle"></i>
             </button>
           </div>
-        </div> 
+        </div>  
 
+        <div class="accordion accordion-flush px-0 mx-0 mb-2" id="filterAccordion">
+          <div class="accordion-item py-1">
+            <h2 class="accordion-header" id="type-heading">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#type-collapse" aria-expanded="false" aria-controls="type-collapse">
+                TYPE
+              </button>
+            </h2>
+            <div id="type-collapse" class="accordion-collapse collapse" aria-labelledby="type-heading" data-bs-parent="#filterAccordion">
+              <div class="accordion-body">
+                <div class="row g-2">
+                  <div class="col-4">
+                    <input type="radio" class="btn-check" name="type-options" id="type-all" value="all" v-model="type" autocomplete="off" checked @change="resetPages">
+                    <label class="btn btn-outline-dark w-100" for="type-all">All</label>
+                  </div>
+                  <div
+                    v-for="(pType, index) in [...new Set(products.map(p => p.type))]"
+                    :key="index" 
+                    class="col-4"
+                  > 
+                    <input type="radio" class="btn-check" name="type-options" :id="pType" :value="pType" v-model="type" autocomplete="off" @change="resetPages">
+                    <label class="btn btn-outline-dark w-100" :for="pType">{{ pType }}</label> 
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>  
 
+          <div class="accordion-item py-1">
+            <h2 class="accordion-header" id="category-heading">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#category-collapse" aria-expanded="false" aria-controls="category-collapse">
+                CATEGORY
+              </button>
+            </h2>
+            <div id="category-collapse" class="accordion-collapse collapse" aria-labelledby="category-heading" data-bs-parent="#filterAccordion">
+              <div class="accordion-body">
+                <div class="row g-2">
+                  <div class="col-4">
+                    <input type="radio" class="btn-check" name="category-options" id="category-all" value="all" v-model="category" autocomplete="off" checked @change="resetPages">
+                    <label class="btn btn-outline-dark w-100" for="category-all">All</label>
+                  </div>
+                  <div
+                    v-for="(pCategory, index) in [...new Set(products.map(p => p.category))]"
+                    :key="index" 
+                    class="col-4"
+                  > 
+                    <input type="radio" class="btn-check" name="category-options" :id="pCategory" :value="pCategory" v-model="category" autocomplete="off" @change="resetPages">
+                    <label class="btn btn-outline-dark w-100" :for="pCategory">{{ pCategory }}</label> 
+                  </div>
+                </div>
+              </div>
+            </div> 
+          </div>
+
+          <div class="accordion-item py-1">
+            <h2 class="accordion-header" id="brand-heading">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#brand-collapse" aria-expanded="false" aria-controls="brand-collapse">
+                BRAND
+              </button>
+            </h2>
+            <div id="brand-collapse" class="accordion-collapse collapse" aria-labelledby="brand-heading" data-bs-parent="#filterAccordion">
+              <div class="accordion-body">
+                <div class="row g-2">
+                  <div class="col-4">
+                    <input type="radio" class="btn-check" name="brand-options" id="brand-all" value="all" v-model="brand" autocomplete="off" checked @change="resetPages">
+                    <label class="btn btn-outline-dark w-100" for="brand-all">All</label>
+                  </div>
+                  <div
+                    v-for="(pBrand, index) in [...new Set(products.map(p => p.brand))]"
+                    :key="index" 
+                    class="col-4"
+                  > 
+                    <input type="radio" class="btn-check" name="brand-options" :id="pBrand" :value="pBrand" v-model="brand" autocomplete="off" @change="resetPages">
+                    <label class="btn btn-outline-dark w-100" :for="pBrand">{{ pBrand }}</label> 
+                  </div>
+                </div>
+              </div>
+            </div> 
+          </div>
+        </div>
       </div>
     </div> 
   </div>
@@ -114,40 +193,86 @@
 
 
 <script setup>
-  import { ref, watch, onBeforeUnmount } from 'vue';
-  import { useRoute } from 'vue-router';
+  import { ref, onMounted, watch, onBeforeUnmount, computed } from 'vue';
+  import { useRoute, useRouter } from 'vue-router';
 
   const API = "http://127.0.0.1:8000";
   const route = useRoute();
-  const pager = ref({});
-  const pageOfProducts = ref([]);
+  const router = useRouter();
+
+  const products = ref([]); 
   const isLoading = ref(false);
   const error = ref('');
-  const isSidebarOpen = ref(false);
+  const isSidebarOpen = ref(false); 
+  const search = ref(route.query.search || '');
+  const type = ref(route.query.type || 'all');
+  const category = ref(route.query.category || 'all');
+  const brand = ref(route.query.brand || 'all');
+  const currentPage = ref(Number(route.query.page) || 1);
+  const pageSize = 48;
 
-  const fetchItems = async (page) => {
-    isLoading.value = true; 
 
+  
+  onMounted(() => fetchProducts());
+
+  const fetchProducts = async () => {
+    isLoading.value = true;
     try {
-      const res = await fetch(`${API}/products?page=${page}`);
-      const { pager: newPager, pageOfProducts: newPageProducts } = await res.json();
-
-      if (newPager && newPageProducts) {
-        pager.value = newPager;
-        pageOfProducts.value = newPageProducts; 
-      } else {
-        error.value = data.message;
-        alert(data.message);
-      }
+      const res = await fetch(`${API}/products`);
+      products.value = await res.json();
     } catch (e) {
-      console.error('Error fetching products:', e);
-      error.value = 'Failed to fetch products information';
-      alert('Failed to fetch products information');
+      console.error('Error fetching all products:', e);
+      error.value = 'Failed to fetch all products information';
+      alert('Failed to fetch all products information');
     } finally {
       isLoading.value = false;
     }
   };
 
+  const filteredProducts = computed(() => { 
+    return products.value.filter((p) => {
+      const matchSearch = p.name.toLowerCase().includes(search.value.toLowerCase());
+      const matchType = type.value === 'all' || p.type === type.value;
+      const matchCategory = category.value === 'all' || p.category === category.value;
+      const matchBrand = brand.value === 'all' || p.brand === brand.value;
+      return matchSearch && matchType && matchCategory && matchBrand;
+    });
+  });
+
+  const totalPages = computed(() => Math.ceil(filteredProducts.value.length / pageSize));
+  const paginatedProducts = computed(() => {
+    const start = (currentPage.value - 1) * pageSize;
+    return filteredProducts.value.slice(start, start + pageSize);
+  });
+
+  const goToPage = (page) => {
+    if (page >= 1 && page <= totalPages.value) currentPage.value = page;
+  }; 
+
+  watch([search, type, category, brand, currentPage], () => {
+    router.replace({
+      query: {
+        search: search.value || undefined,
+        type: type.value !== 'all' ? type.value : undefined,
+        category: category.value !== 'all' ? category.value : undefined,
+        brand: brand.value !== 'all' ? brand.value : undefined,
+        page: currentPage.value !== 1 ? currentPage.value : undefined
+      }
+    });
+  });
+
+  onBeforeUnmount(() => {
+    document.body.style.overflow = '';
+  }); 
+
+  const deleteSearch = () => search.value = '';
+  const resetPages = () => currentPage.value = 1;
+  const resetFilter = () => {
+    category.value = 'all';
+    type.value = 'all';
+    brand.value = 'all';
+    search.value = '';
+  }
 
   const toggleSidebar = () => {
     isSidebarOpen.value = !isSidebarOpen.value;
@@ -162,33 +287,15 @@
     isSidebarOpen.value = false;
     document.body.style.overflow = '';
   };
-
-  onBeforeUnmount(() => {
-    document.body.style.overflow = '';
-  });
-
-
-  // Watch for route query changes
-  watch(() => route.query.page,
-    async (page) => {
-      const currentPage = parseInt(page) || 1
-      if (currentPage !== pager.value.currentPage) {
-        await fetchItems(currentPage);
-      }
-    },
-    { immediate: true }
-  );
 </script>
 
 
 
 <style scoped>
   .heading {
-    font-size: 40px;
-    font-weight: bolder;
-    line-height: 1.1;
-    color: #000;
-    margin-bottom: 20px;
+    font-size: 35px;
+    font-weight: bolder; 
+    color: #000; 
   }
 
   .card {
@@ -217,37 +324,18 @@
     background-color: transparent !important; 
     border-radius: 0px !important;
     color: white; 
-    background-color: #000000 !important;
+    background-color: #b11414 !important;
     text-decoration: none;
-  }
-  
-  .page-link {
-    background-color: transparent !important; 
     border: none;
-    color: black;
-  }
+    cursor: pointer;
+  } 
 
   .disabled .page-link, .disabled .page-link:hover { 
     background-color: #dadada !important; 
     border: none;
-    color: #555555;
-
+    color: #555555; 
   }
-
-  .page-link:hover { 
-    text-decoration: underline;
-    text-decoration-thickness: 1.5px; 
-    text-underline-offset: 3px;
-    border: none;
-    color: black;
-  }
-
-  .page-number .active, .page-number .active .page-link:hover {
-    text-decoration: none;
-    color: white;
-    background-color: #b80000;
-  }
-
+ 
   .sidebar {
     position: fixed;
     top: 0;
@@ -275,11 +363,7 @@
     top: 0;
     background-color: white;
     z-index: 10;
-  }
-
-  .sidebar-body {
-    padding: 1rem;
-  }
+  } 
  
   .sidebar-overlay {
     position: fixed;
@@ -292,20 +376,39 @@
     transition: opacity 0.3s ease-in-out;
   } 
 
-  .sidebar-body .input-group {
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  }
-
-  .sidebar-body .form-control {
+  .sidebar-body .input-group { 
     border: none;
-    padding-left: 20px;
+    border-bottom: 1px solid #cacaca;
+    overflow: hidden; 
   }
 
-  .sidebar-body .btn {
+  .sidebar-body .search {
+    outline: none;
+    border: none; 
+  }
+
+  .sidebar-body .delete-ic {
     border: none;
     border-radius: 0;
-    padding: 10px 20px;
+    padding: 10px 0px;
+    background-color: transparent;
+  }
+
+  .accordion {
+    border-bottom: 1px solid #cacaca; 
+  }
+
+  .accordion .accordion-button {
+    letter-spacing: 1px;
+  }
+
+  .accordion-body .btn {
+    border-radius: 0;
+  }
+
+  .accordion-body .btn-check:checked + .btn-outline-dark {
+    background-color: #b11414; 
+    border-color: #b11414;
+    color: white;
   }
 </style>
