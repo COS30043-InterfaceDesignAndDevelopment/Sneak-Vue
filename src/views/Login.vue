@@ -188,7 +188,7 @@
 
     if (res.success) {
       isLoading.value = false;
-      alert('Logged in successful!');
+      alert('Logged in successfully!');
       localStorage.setItem('token', res.token);
       router.push('/user');
     } else {
@@ -215,7 +215,7 @@
 
     if (res.success) {
       isLoading.value = false;
-      alert('Registration successful!\n-- PLEASE CONFIRM IN MAIL! --');
+      alert('Registration successfully!\n-- PLEASE CONFIRM IN MAIL! --');
       localStorage.setItem('token', res.token);
       window.location.reload(); 
       router.push('/login');

@@ -169,7 +169,7 @@
   }
 
   .welcome-banner {
-    background: linear-gradient(70deg, #0b4fcfd7 0%, #b11414 100%); 
+    background-color: #b11414;
   }
 
   .card {
