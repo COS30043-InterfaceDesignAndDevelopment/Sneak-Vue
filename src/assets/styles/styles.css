@@ -1,3 +1,11 @@
+/* Color theme define for vueform */
+:root { 
+  --slider-connect-bg: #000000; 
+  --slider-handle-bg: #000000; 
+  --slider-tooltip-bg: #b11414;
+  --slider-tooltip-color: #fff;
+}
+
 body {
   background: linear-gradient(70deg, #e6edfa9c 0%, #f8f2f2a9 100%); 
   z-index: -10;

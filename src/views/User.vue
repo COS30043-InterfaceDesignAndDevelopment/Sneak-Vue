@@ -28,7 +28,11 @@
               alt="User Avatar" 
               class="rounded-circle mb-3 avatar"
             >
-            <h4 class="card-title mb-1">{{ user.user_metadata.username }}</h4>
+            <h4 class="card-title mb-1">{{ user.user_metadata.username }} 
+              <span v-if="user.user_metadata.role === 'admin'">
+                <i class="bi bi-person-check"></i>
+              </span>
+            </h4>
             <p class="text-muted mb-3">{{ user.user_metadata.email }}</p>
             <button @click="logout" class="btn btn-view py-2 w-100">
               <i class="bi bi-box-arrow-right me-2"></i>Logout
@@ -60,9 +64,16 @@
       <div class="col-lg-8">
         <!-- Welcome Banner -->
         <div class="card welcome-banner text-white shadow-sm mb-4">
-          <div class="card-body">
-            <h3>Welcome back, {{ user.user_metadata.username }}!</h3>
-            <p class="mb-0">Check out the latest sneaker drops and exclusive deals.</p>
+          <div class="card-body d-flex align-items-center">
+            <div>
+              <h3>Welcome back, {{ user.user_metadata.username }}!</h3>
+              <p class="mb-0">Check out the latest sneaker drops and exclusive deals.</p> 
+            </div>
+            <div v-if="user.user_metadata.role === 'admin'" class="ms-auto">
+              <router-link to="/admin" class="btn btn-dark rounded-0 py-2 w-100">
+                Admin <i class="bi bi-person-gear"></i>
+              </router-link> 
+            </div>
           </div>
         </div>
 
@@ -89,9 +100,11 @@
 
 <script setup>
   import { ref, onMounted } from 'vue';
-  import { useRouter } from 'vue-router' 
+  import { useRouter } from 'vue-router';
+  import { useAuthStore } from '../stores/auth';
 
   const API = "http://127.0.0.1:8000";
+  const auth = useAuthStore();
   const router = useRouter();
   const user = ref(null);
   const isLoading = ref(false);
@@ -100,45 +113,17 @@
 
   onMounted(() => {
     fetchUser(); 
-  });
+  }); 
 
-  const fetchUser = async () => {
-    const access_token = localStorage.getItem('token');
-    
-    if (!access_token) {
-      error.value = 'No token found. Please login.';
-      return;
-    }
-
-    isLoading.value = true;
-    error.value = null;
-
+  const fetchUser = async () => { 
     try {
-      const res = await fetch(`${API}/user/information`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${access_token}`
-        }
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        user.value = data.user;
-        const creationDate = data.user.email_confirmed_at;
-        creationYear.value = creationDate.match(/\d{4}/).toString(); 
-      } else {
-        error.value = data.message;
-        alert(data.message);
-      }
+      isLoading.value = true;
+      user.value = await auth.getUserData();
     } catch (e) {
-      console.error('Error fetching user:', e);
-      error.value = 'Failed to fetch user information';
-      alert('Failed to fetch user information');
+      error.value = 'Failed to fetch user information'; 
     } finally {
       isLoading.value = false;
-    }
+    };
   };
 
   // Logout function 
@@ -152,7 +137,7 @@
 
     if (res.success) {
       alert('Logged out successful!');
-      localStorage.removeItem('token');
+      auth.logout();
       router.push('/login');
     } else {
       alert(res.message);

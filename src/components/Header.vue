@@ -13,7 +13,7 @@
           aria-label="Toggle navigation"
         >
           <span class="navbar-toggler-icon"></span>
-        </button>
+        </button> 
 
         <!-- Logo -->
         <a class="navbar-brand logo-position text-center" href="/">
@@ -51,7 +51,7 @@
                     </h6>
 
                     <div class="nav-item text-dark py-1">                      
-                      <router-link class="fw-normal" to="">All categories</router-link>
+                      <router-link class="fw-normal" :to="{ path: '/products', query: { gender: gender, type: 'all'}}">All categories</router-link>
                     </div>
 
                     <div
@@ -59,7 +59,7 @@
                       :key="i"
                       class="nav-item text-dark py-1"
                     >
-                      <router-link class="fw-normal" to="">{{ type }}</router-link>
+                      <router-link class="fw-normal" :to="{ path: '/products', query: { gender: gender, type: type }}">{{ type }}</router-link>
                     </div>
                   </div>
                   <div class="col-md-6 d-flex justify-content-end">
@@ -89,10 +89,10 @@
 <script setup>
   import { ref, onMounted, onUnmounted, onBeforeUnmount, computed } from 'vue';
   import mockData from '../assets/data/mock-sneaker-data.json';
-  import { authStore } from '../stores/auth';
+  import { useAuthStore } from '../stores/auth';
  
   const data = ref([]);
-  const auth = authStore();
+  const auth = useAuthStore();
   const dataGender = ref(['Men', 'Women', 'Unisex']);
   const showNavbar = ref(true);
   const lastScrollPosition = ref(0); 
@@ -169,6 +169,16 @@
     margin-left: auto; 
   }
 
+  .dropdown-menu a {
+    color: #000;
+    text-decoration: none;
+  }
+
+  .dropdown-menu a:hover { 
+    text-decoration: underline; 
+  }
+
+
   /* Mobile */
   @media (max-width: 991px) {
     .d-flex.w-100 {
@@ -223,7 +233,7 @@
     .nav-item:hover {
       cursor: pointer;
       text-decoration: underline;
-      text-decoration-thickness: 2px;
+      text-decoration-thickness: 1.5px;
       text-underline-offset: 5px;
       color: #9b9b9b;
     }

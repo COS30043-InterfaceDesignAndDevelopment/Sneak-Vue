@@ -92,7 +92,7 @@
 
             <div class="mb-3">
               <span v-if="isRegistering">Already have account? </span>
-              <span v-else>Have no account? </span>
+              <span v-else>Don't have an account? </span>
               <button 
                 type="button" 
                 class="text-success fw-bold border-0 bg-transparent p-0"
@@ -154,8 +154,10 @@
 <script setup>
   import { ref, computed } from 'vue'; 
   import { useRouter } from 'vue-router';
+  import { useAuthStore } from '../stores/auth';
 
   const API = "http://127.0.0.1:8000";
+  const auth = useAuthStore();
   const router = useRouter();
   const username = ref('');
   const email = ref('');
@@ -189,7 +191,7 @@
     if (res.success) {
       isLoading.value = false;
       alert('Logged in successfully!');
-      localStorage.setItem('token', res.token);
+      localStorage.setItem('token', res.token); 
       router.push('/user');
     } else {
       isLoading.value = false;

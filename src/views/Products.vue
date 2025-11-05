@@ -91,7 +91,7 @@
       </div>
       
       <div class="sidebar-body">
-        <div class="p-3 px-3 w-100" style="max-width: 500px;">
+        <div class="py-4 px-3 w-100" style="max-width: 500px;">
           <div class="input-group">
             <input 
               type="text" 
@@ -106,7 +106,58 @@
           </div>
         </div>  
 
+      
         <div class="accordion accordion-flush px-0 mx-0 mb-2" id="filterAccordion">
+          <div class="accordion-item py-1">
+            <h2 class="accordion-header" id="price-heading">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#price-collapse" aria-expanded="false" aria-controls="price-collapse">
+                PRICE RANGE
+              </button>
+            </h2>
+            <div id="price-collapse" class="accordion-collapse collapse" aria-labelledby="price-heading" data-bs-parent="#filterAccordion">
+              <div class="accordion-body pt-5 pb-4 px-4">
+                <div class="px-2"> 
+                  <SliderElement
+                    v-model="priceRange"
+                    :format="{ prefix: '$', thousand: ' ' }"
+                    :step="5"
+                    :min="0"
+                    :max="1000"
+                    :merge="100"
+                  />   
+                </div>
+              </div>
+            </div>
+          </div>  
+
+
+          <div class="accordion-item py-1">
+            <h2 class="accordion-header" id="gender-heading">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#gender-collapse" aria-expanded="false" aria-controls="gender-collapse">
+                GENDER
+              </button>
+            </h2>
+            <div id="gender-collapse" class="accordion-collapse collapse" aria-labelledby="gender-heading" data-bs-parent="#filterAccordion">
+              <div class="accordion-body">
+                <div class="row g-2">
+                  <div class="col-4">
+                    <input type="radio" class="btn-check" name="gender-options" id="gender-all" value="all" v-model="gender" autocomplete="off" checked @change="resetPages">
+                    <label class="btn btn-outline-dark w-100" for="gender-all">All</label>
+                  </div>
+                  <div
+                    v-for="(pGender, index) in [...new Set(products.map(p => p.gender))]"
+                    :key="index" 
+                    class="col-4"
+                  > 
+                    <input type="radio" class="btn-check" name="gender-options" :id="pGender" :value="pGender" v-model="gender" autocomplete="off" @change="resetPages">
+                    <label class="btn btn-outline-dark w-100" :for="pGender">{{ pGender }}</label> 
+                  </div>
+                </div>
+              </div>
+            </div> 
+          </div>
+
+
           <div class="accordion-item py-1">
             <h2 class="accordion-header" id="type-heading">
               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#type-collapse" aria-expanded="false" aria-controls="type-collapse">
@@ -183,7 +234,10 @@
                 </div>
               </div>
             </div> 
-          </div>
+          </div> 
+
+
+          
         </div>
       </div>
     </div> 
@@ -194,7 +248,9 @@
 
 <script setup>
   import { ref, onMounted, watch, onBeforeUnmount, computed } from 'vue';
-  import { useRoute, useRouter } from 'vue-router';
+  import { useRoute, useRouter } from 'vue-router'; 
+  import SliderElement from '@vueform/slider'
+
 
   const API = "http://127.0.0.1:8000";
   const route = useRoute();
@@ -205,15 +261,27 @@
   const error = ref('');
   const isSidebarOpen = ref(false); 
   const search = ref(route.query.search || '');
+  const gender = ref(route.query.gender || 'all');
   const type = ref(route.query.type || 'all');
   const category = ref(route.query.category || 'all');
   const brand = ref(route.query.brand || 'all');
   const currentPage = ref(Number(route.query.page) || 1);
+  const priceRange = ref(route.query.priceRange || [0, 1000]);
   const pageSize = 48;
 
 
   
-  onMounted(() => fetchProducts());
+  onMounted(() => {
+    if (route.query.gender) {
+      gender.value = route.query.gender;
+    };
+
+    if (route.query.type) {
+      type.value = route.query.type;
+    };
+
+    fetchProducts();
+  });
 
   const fetchProducts = async () => {
     isLoading.value = true;
@@ -232,10 +300,13 @@
   const filteredProducts = computed(() => { 
     return products.value.filter((p) => {
       const matchSearch = p.name.toLowerCase().includes(search.value.toLowerCase());
+      const matchPriceRange = (priceRange.value[0] === 0 && priceRange.value[1] === 1000) 
+        || (p.price >= priceRange.value[0] && p.price <= priceRange.value[1]);
+      const matchGender = gender.value === 'all' || p.gender === gender.value;
       const matchType = type.value === 'all' || p.type === type.value;
       const matchCategory = category.value === 'all' || p.category === category.value;
       const matchBrand = brand.value === 'all' || p.brand === brand.value;
-      return matchSearch && matchType && matchCategory && matchBrand;
+      return matchSearch && matchPriceRange && matchGender && matchType && matchCategory && matchBrand;
     });
   });
 
@@ -249,10 +320,12 @@
     if (page >= 1 && page <= totalPages.value) currentPage.value = page;
   }; 
 
-  watch([search, type, category, brand, currentPage], () => {
+  watch([search, priceRange, gender, type, category, brand, currentPage], () => {
     router.replace({
       query: {
         search: search.value || undefined,
+        priceRange: (priceRange.value[0] !== 0 || priceRange.value[1] !== 1000) ? priceRange.value : undefined,
+        gender: gender.value !== 'all' ? gender.value : undefined,
         type: type.value !== 'all' ? type.value : undefined,
         category: category.value !== 'all' ? category.value : undefined,
         brand: brand.value !== 'all' ? brand.value : undefined,
@@ -261,6 +334,13 @@
     });
   });
 
+  watch(() => route.query, (newQuery) => {
+      if (newQuery.gender) gender.value = newQuery.gender;
+      if (newQuery.type) type.value = newQuery.type; 
+    }
+  );
+
+
   onBeforeUnmount(() => {
     document.body.style.overflow = '';
   }); 
@@ -268,11 +348,14 @@
   const deleteSearch = () => search.value = '';
   const resetPages = () => currentPage.value = 1;
   const resetFilter = () => {
+    priceRange.value = [0, 1000];
+    gender.value = 'all';
     category.value = 'all';
     type.value = 'all';
     brand.value = 'all';
     search.value = '';
-  }
+    resetPages();
+  };
 
   const toggleSidebar = () => {
     isSidebarOpen.value = !isSidebarOpen.value;
@@ -291,7 +374,7 @@
 
 
 
-<style scoped>
+<style scoped> 
   .heading {
     font-size: 35px;
     font-weight: bolder; 
@@ -385,6 +468,7 @@
   .sidebar-body .search {
     outline: none;
     border: none; 
+    width: 90%;
   }
 
   .sidebar-body .delete-ic {
