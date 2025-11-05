@@ -101,10 +101,8 @@
 <script setup>
   import { ref, onMounted } from 'vue';
   import { useRouter } from 'vue-router';
-  import { useAuthStore } from '../stores/auth';
 
-  const API = "http://127.0.0.1:8000";
-  const auth = useAuthStore();
+  const API = "http://127.0.0.1:8000"; 
   const router = useRouter();
   const user = ref(null);
   const isLoading = ref(false);
@@ -115,16 +113,45 @@
     fetchUser(); 
   }); 
 
-  const fetchUser = async () => { 
+  const fetchUser = async () => {
+    const access_token = localStorage.getItem('token');
+    
+    if (!access_token) {
+      error.value = 'No token found. Please login.';
+      return;
+    }
+
+    isLoading.value = true;
+    error.value = null;
+
     try {
-      isLoading.value = true;
-      user.value = await auth.getUserData();
+      const res = await fetch(`${API}/user/information`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${access_token}`
+        }
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        user.value = data.user;
+        const creationDate = data.user.email_confirmed_at;
+        creationYear.value = creationDate.match(/\d{4}/).toString(); 
+      } else {
+        error.value = data.message;
+        alert(data.message);
+      }
     } catch (e) {
-      error.value = 'Failed to fetch user information'; 
+      console.error('Error fetching user:', e);
+      error.value = 'Failed to fetch user information';
+      alert('Failed to fetch user information');
     } finally {
       isLoading.value = false;
-    };
+    }
   };
+
 
   // Logout function 
   const logout = async () => {  
@@ -137,7 +164,7 @@
 
     if (res.success) {
       alert('Logged out successful!');
-      auth.logout();
+      localStorage.removeItem('token');
       router.push('/login');
     } else {
       alert(res.message);

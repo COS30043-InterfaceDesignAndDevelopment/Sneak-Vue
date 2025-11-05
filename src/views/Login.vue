@@ -153,11 +153,9 @@
 
 <script setup>
   import { ref, computed } from 'vue'; 
-  import { useRouter } from 'vue-router';
-  import { useAuthStore } from '../stores/auth';
+  import { useRouter } from 'vue-router'; 
 
-  const API = "http://127.0.0.1:8000";
-  const auth = useAuthStore();
+  const API = "http://127.0.0.1:8000"; 
   const router = useRouter();
   const username = ref('');
   const email = ref('');
