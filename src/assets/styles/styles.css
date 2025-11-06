@@ -69,3 +69,24 @@ body {
   color: white;
   border: 1px solid transparent;
 }
+
+
+
+.previous-item .page-link, 
+.next-item .page-link,
+.previous-item .page-link:hover, 
+.next-item .page-link:hover {
+  background-color: transparent !important; 
+  border-radius: 0px !important;
+  color: white ; 
+  background-color: #b11414 !important;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+} 
+
+.disabled .page-link, .disabled .page-link:hover { 
+  background-color: #dadada !important; 
+  border: none;
+  color: #555555; 
+}

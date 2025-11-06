@@ -105,8 +105,7 @@
             </button>
           </div>
         </div>  
-
-      
+ 
         <div class="accordion accordion-flush px-0 mx-0 mb-2" id="filterAccordion">
           <div class="accordion-item py-1">
             <h2 class="accordion-header" id="price-heading">
@@ -129,8 +128,7 @@
               </div>
             </div>
           </div>  
-
-
+ 
           <div class="accordion-item py-1">
             <h2 class="accordion-header" id="gender-heading">
               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#gender-collapse" aria-expanded="false" aria-controls="gender-collapse">
@@ -156,8 +154,7 @@
               </div>
             </div> 
           </div>
-
-
+ 
           <div class="accordion-item py-1">
             <h2 class="accordion-header" id="type-heading">
               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#type-collapse" aria-expanded="false" aria-controls="type-collapse">
@@ -234,10 +231,7 @@
                 </div>
               </div>
             </div> 
-          </div> 
-
-
-          
+          </div>  
         </div>
       </div>
     </div> 
@@ -398,26 +392,6 @@
     text-underline-offset: 3px; 
   }
 
-
-
-  .previous-item .page-link, 
-  .next-item .page-link,
-  .previous-item .page-link:hover, 
-  .next-item .page-link:hover {
-    background-color: transparent !important; 
-    border-radius: 0px !important;
-    color: white; 
-    background-color: #b11414 !important;
-    text-decoration: none;
-    border: none;
-    cursor: pointer;
-  } 
-
-  .disabled .page-link, .disabled .page-link:hover { 
-    background-color: #dadada !important; 
-    border: none;
-    color: #555555; 
-  }
  
   .sidebar {
     position: fixed;

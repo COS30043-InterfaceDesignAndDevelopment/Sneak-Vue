@@ -3,7 +3,7 @@ import { createPinia } from 'pinia';
 import App from './App.vue';
 import router from './router/router.js';
 import Vueform from '@vueform/vueform';
-import vueformConfig from '../vueform.config.js';
+import vueformConfig from '../vueform.config.js'; 
 
 // Import Bootstrap & BootstrapVue3 styles
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -17,7 +17,7 @@ import './assets/styles/styles.css';
 
 const app = createApp(App);
 const pinia = createPinia();
-
+ 
 app.use(pinia);
 app.use(Vueform, vueformConfig);
 app.use(router);
