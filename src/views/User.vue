@@ -70,9 +70,9 @@
               <p class="mb-0">Check out the latest sneaker drops and exclusive deals.</p> 
             </div>
             <div v-if="user.user_metadata.role === 'admin'" class="ms-auto">
-              <router-link to="/admin" class="btn btn-dark rounded-0 py-2 w-100">
+              <button @click="toAdmin" class="btn btn-dark rounded-0 py-2 w-100">
                 Admin <i class="bi bi-person-gear"></i>
-              </router-link> 
+              </button> 
             </div>
           </div>
         </div>
@@ -137,6 +137,7 @@
 
       if (data.success) {
         user.value = data.user;
+        localStorage.setItem('user_data', JSON.stringify(data.user));
         const creationDate = data.user.email_confirmed_at;
         creationYear.value = creationDate.match(/\d{4}/).toString(); 
       } else {
@@ -165,10 +166,18 @@
     if (res.success) {
       alert('Logged out successful!');
       localStorage.removeItem('token');
+      localStorage.removeItem('user_data');
       router.push('/login');
     } else {
       alert(res.message);
     }
+  };
+
+
+  const toAdmin = () => {
+    router.push('/admin').then(() => {
+      router.go(0);
+    });
   };
 </script>
 

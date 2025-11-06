@@ -89,10 +89,10 @@
 <script setup>
   import { ref, onMounted, onUnmounted, onBeforeUnmount, computed } from 'vue';
   import mockData from '../assets/data/mock-sneaker-data.json';
-  import { authStore } from '../stores/auth';
+  import { useAuthStore } from '../stores/auth';
  
   const data = ref([]);
-  const auth = authStore();
+  const auth = useAuthStore();
   const dataGender = ref(['Men', 'Women', 'Unisex']);
   const showNavbar = ref(true);
   const lastScrollPosition = ref(0); 

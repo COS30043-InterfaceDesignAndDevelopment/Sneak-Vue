@@ -215,8 +215,7 @@
 
     if (res.success) {
       isLoading.value = false;
-      alert('Registration successfully!\n-- PLEASE CONFIRM IN MAIL! --');
-      localStorage.setItem('token', res.token);
+      alert('Registration successfully!\n-- PLEASE CONFIRM IN MAIL! --'); 
       window.location.reload(); 
       router.push('/login');
     } else {
