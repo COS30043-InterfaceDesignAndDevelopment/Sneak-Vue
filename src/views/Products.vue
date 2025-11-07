@@ -250,7 +250,6 @@
   const route = useRoute();
   const router = useRouter();
   const productStore = useProductStore();
-  
   const isSidebarOpen = ref(false); 
   const search = ref(route.query.search || '');
   const gender = ref(route.query.gender || 'all');
@@ -262,7 +261,6 @@
   const pageSize = 48;
 
 
-  
   onMounted(() => {
     if (route.query.gender) {
       gender.value = route.query.gender;
@@ -318,7 +316,6 @@
     if (newQuery.gender) gender.value = newQuery.gender;
     if (newQuery.type) type.value = newQuery.type; 
   });
-
 
   onBeforeUnmount(() => {
     document.body.style.overflow = '';

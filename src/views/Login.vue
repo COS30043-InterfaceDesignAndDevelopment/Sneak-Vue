@@ -165,9 +165,8 @@
   const passwordFieldType = computed(() => showPassword.value ? 'text' : 'password'); 
   const eyeIconClass = computed(() => showPassword.value ? 'bi bi-eye-slash' : 'bi bi-eye');
   const togglePasswordVisibility = () => showPassword.value = !showPassword.value;
-  const passwordMatch = () => userData.password != confirmPassword.value ? passwordError.value = "Passwords do not match!" : passwordError.value = ""; 
+  const passwordMatch = () => userData.value.password !== confirmPassword.value ? passwordError.value = "Passwords do not match!" : passwordError.value = ""; 
   const hasError = computed(() => isRegistering.value && passwordError.value.length > 0);
-
 </script>
 
 

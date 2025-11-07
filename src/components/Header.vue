@@ -92,7 +92,7 @@
   import { useAuthStore } from '../stores/auth';
  
   const data = ref([]);
-  const auth = useAuthStore();
+  const authStore = useAuthStore();
   const dataGender = ref(['Men', 'Women', 'Unisex']);
   const showNavbar = ref(true);
   const lastScrollPosition = ref(0); 
@@ -113,12 +113,11 @@
     window.removeEventListener('scroll', handleScroll);
   })
 
-  const authenticatedPath = computed(() => auth.isAuthenticated ? '/user' : '/login');
+  const authenticatedPath = computed(() => authStore.isAuthenticated ? '/user' : '/login');
   const isMobile = computed(() => width.value < 992);
   const dropdownToggle = computed(() => (isMobile.value ? 'dropdown' : ''));
 
-  const handleResize = () => width.value = window.innerWidth; 
-
+  const handleResize = () => width.value = window.innerWidth;  
   const typeFilter = (gender) => {
     const filteredType = [...new Set(data.value.filter(d => d.gender === gender).map(d => d.type).toSorted())];
     const index = filteredType.indexOf("Sneakers"); 

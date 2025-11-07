@@ -37,7 +37,7 @@ export const useAuthStore = defineStore('auth', () => {
 
       if(!res.ok) {
         const error = await res.text();
-        alert('Log in failed: ' + error);
+        alert('Log in failed: ' + JSON.parse(error).message);
         return;
       };
 
@@ -76,7 +76,7 @@ export const useAuthStore = defineStore('auth', () => {
 
       if(!res.ok) {
         const error = await res.text();
-        alert('Registration failed: ' + error);
+        alert('Registration failed: ' + JSON.parse(error).message);
         return;
       };
 
@@ -109,7 +109,7 @@ export const useAuthStore = defineStore('auth', () => {
 
       if(!res.ok) {
         const error = await res.text();
-        alert('Log out failed: ' + error);
+        alert('Log out failed: ' + JSON.parse(error).message);
         return;
       };
 
