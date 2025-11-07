@@ -132,7 +132,6 @@
       })
     } else {
       filteredNews.value = searchInfo.value ? news.value.filter(n => n[filterItem.value].toLowerCase().includes(searchInfo.value.toLowerCase())) : news.value; 
-      console.log(news.value.filter(n => n[filterItem.value]?.toLowerCase().includes(searchInfo.value.toLowerCase())));
     }
   }
 

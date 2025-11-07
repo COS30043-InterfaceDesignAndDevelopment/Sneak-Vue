@@ -99,7 +99,8 @@
               placeholder="Search by name..." 
               aria-label="Search" 
               aria-describedby="search-addon"
-              v-model="search">
+              v-model="search"
+              @input="resetPages">
             <button class="delete-ic me-1 btn-outline-secondary ms-auto" @click="deleteSearch" type="button" id="search-addon">
               <i class="bi bi-x-circle"></i>
             </button>
@@ -329,10 +330,9 @@
   });
 
   watch(() => route.query, (newQuery) => {
-      if (newQuery.gender) gender.value = newQuery.gender;
-      if (newQuery.type) type.value = newQuery.type; 
-    }
-  );
+    if (newQuery.gender) gender.value = newQuery.gender;
+    if (newQuery.type) type.value = newQuery.type; 
+  });
 
 
   onBeforeUnmount(() => {

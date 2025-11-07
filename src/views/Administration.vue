@@ -4,22 +4,21 @@
       <div class="row">
         <!-- Main Content -->
         <div class="col-12">
-          <div class="pt-3 pb-2 mb-3 border-bottom">
-            <h1 class="h2">Product Management
-              <!-- Loading State -->
-              <span v-if="isLoading" class="px-2 fw-normal">
-                <span class="spinner-border text-danger" role="status">
-                  <span class="visually-hidden">Loading...</span>
-                </span>
+          <div class="pt-2 pb-2 mb-3 border-bottom">
+            <h3 class="text-center mb-4" style="letter-spacing: 2px;">PRODUCT MANAGEMENT</h3> 
+            <!-- Loading State -->
+            <div v-if="isLoadingDataset" class="px-2 mb-3 fw-normal text-center">
+              <span class="spinner-border text-danger" role="status">
+                <span class="visually-hidden">Loading...</span>
               </span>
-            </h1> 
+            </div>
           </div>
 
           <!-- Search and Add Product Button -->
           <div class="row mb-3">
             <div class="col-7 col-md-8">
               <div class="input-group"> 
-                <input type="text" class="form-control border-0 rounded-0 py-2" placeholder="Search products by name, brand, or category...">
+                <input type="text" class="form-control border-0 rounded-0 py-2" placeholder="Search products by name, brand, or category..." v-model="search" @input="resetPages">
               </div>
             </div>
             <div class="col-5 col-md-4 text-end">
@@ -299,13 +298,18 @@
 
 
 <script setup>
-  import { ref, onMounted, computed } from 'vue'; 
+  import { ref, onMounted, computed, watch } from 'vue'; 
   import { useAuthStore } from '../stores/auth';  
+  import { useRouter, useRoute } from 'vue-router';
  
   const API = "http://127.0.0.1:8000"; 
   const auth = useAuthStore(); 
-  const products = ref([]);
+  const route = useRoute();
+  const router = useRouter();
+  const products = ref([]); 
   const error = ref('');
+  const search = ref(route.query.search || '');
+  const isLoadingDataset = ref(false);
   const isLoading = ref(false);
   const currentPage = ref(1);
   const pageSize = 20;
@@ -321,7 +325,7 @@
   onMounted(() => fetchProducts());
 
   const fetchProducts = async () => {
-    isLoading.value = true;
+    isLoadingDataset.value = true;
     try {
       const res = await fetch(`${API}/products`);
       products.value = await res.json();
@@ -330,7 +334,7 @@
       error.value = 'Failed to fetch all products information';
       alert('Failed to fetch all products information');
     } finally {
-      isLoading.value = false;
+      isLoadingDataset.value = false;
     }
   };
 
@@ -452,12 +456,36 @@
     };
   };
 
-  const totalPages = computed(() => Math.ceil(products.value.length / pageSize))
+  const totalPages = computed(() => Math.ceil(filteredProducts.value.length / pageSize))
   const paginatedProducts = computed(() => {
     const start = (currentPage.value - 1) * pageSize;
-    return products.value.slice(start, start + pageSize);
+    return filteredProducts.value.slice(start, start + pageSize);
   });
 
+
+  watch([search, currentPage], () => {
+    router.replace({
+      query: {
+        search: search.value || undefined,
+        page: currentPage.value !== 1 ? currentPage.value : undefined
+      }
+    });
+  });
+
+
+  const filteredProducts = computed(() => { 
+    return products.value.filter(p => {
+      const matchName = p.name.toLowerCase().includes(search.value.toLowerCase());
+      const matchType = p.type.toLowerCase().includes(search.value.toLowerCase());
+      const matchBrand = p.brand.toLowerCase().includes(search.value.toLowerCase());
+      const matchPrice = p.price.toString().includes(search.value);
+      const matchGender = p.gender.toLowerCase().includes(search.value.toLowerCase());
+      const matchCategory = p.category.toLowerCase().includes(search.value.toLowerCase());
+      return matchName || matchType || matchBrand || matchPrice || matchGender || matchCategory;
+    });
+  });
+
+  const resetPages = () => currentPage.value = 1;
   const goToPage = (page) => {
     if (page >= 1 && page <= totalPages.value) currentPage.value = page;
   }; 
