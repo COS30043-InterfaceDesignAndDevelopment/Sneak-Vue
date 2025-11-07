@@ -23,7 +23,6 @@ export const useProductStore = defineStore('products', () => {
     }
   };
 
-
   
   const insertProduct = async (newProduct) => {
     isProcessing.value = true; 
@@ -46,7 +45,7 @@ export const useProductStore = defineStore('products', () => {
 
       if(!res.ok) {
         const error = await res.text();
-        alert('Add new product failed: ', error);
+        alert('Add new product failed: ' + error);
         return;
       }
 
@@ -57,12 +56,11 @@ export const useProductStore = defineStore('products', () => {
       };
     } catch (e) {
       console.error('An error occured: ', e);
-      alert('An error occured: ', e);
+      alert('An error occured: ' + e);
     } finally {
       isProcessing.value = false;
     }
   };
-
 
 
   const updateProduct = async (productDetails) => {
@@ -86,7 +84,7 @@ export const useProductStore = defineStore('products', () => {
 
       if(!res.ok) {
         const error = await res.text();
-        alert('Update product failed: ', error);
+        alert('Update product failed: ' + error);
         return;
       }
 
@@ -97,12 +95,11 @@ export const useProductStore = defineStore('products', () => {
       };
     } catch (e) {
       console.error('An error occured: ', e);
-      alert('An error occured: ', e);
+      alert('An error occured: ' + e);
     } finally {
       isProcessing.value = false; 
     }
   };
-
 
 
   const deleteProduct = async (productId) => {
@@ -115,7 +112,7 @@ export const useProductStore = defineStore('products', () => {
 
       if (!res.ok) {
         const error = await res.text();
-        alert('Delete product failed: ', error);
+        alert('Delete product failed: ' + error);
         return;
       }
 
@@ -131,7 +128,6 @@ export const useProductStore = defineStore('products', () => {
       isProcessing.value = false;
     }
   };
-
 
 
   function capitalizeWords(str) {
