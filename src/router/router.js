@@ -1,20 +1,49 @@
-import { createRouter, createWebHistory } from 'vue-router';
-import Home from '../views/Home.vue';
-import Product from '../views/Products.vue';
-import News from '../views/News.vue';
-import About from '../views/About.vue';
-import Login from '../views/Login.vue';
-import User from '../views/User.vue';
-import Administration from '../views/Administration.vue';
+import { createRouter, createWebHistory } from 'vue-router'; 
 
 const routes = [
-  { path: '/', name: 'home', component: Home },
-  { path: '/news', name: 'news', component: News },
-  { path: '/about', name: 'about', component: About },
-  { path: '/products', name: 'product',component: Product },
-  { path: '/login', name: 'login', component: Login },
-  { path: '/user', name: 'user', component: User, meta: { requireAuth: true } },
-  { path: '/admin', name: 'admin', component: Administration, meta: { requireAuth: true } },
+  { 
+    path: '/', 
+    name: 'home', 
+    component: () => import('../views/Home.vue') 
+  },
+  { 
+    path: '/news', 
+    name: 'news', 
+    component: () => import('../views/News.vue') 
+  },
+  { 
+    path: '/about', 
+    name: 'about', 
+    component: () => import('../views/About.vue') 
+  },
+  { 
+    path: '/products', 
+    name: 'product',
+    component: () => import('../views/Products.vue')
+  },  
+  { 
+    path: '/products/:id',    
+    name: 'product-detail',
+    component: () => import('../views/ProductDetail.vue'),
+    props: true            
+  },
+  { 
+    path: '/login', 
+    name: 'login', 
+    component: () => import('../views/Login.vue') 
+  },
+  { 
+    path: '/user', 
+    name: 'user', 
+    component: () => import('../views/User.vue'), 
+    meta: { requireAuth: true } 
+  },
+  { 
+    path: '/admin', 
+    name: 'admin', 
+    component: () => import('../views/Administration.vue'), 
+    meta: { requireAuth: true } 
+  },
 ];
 
 const router = createRouter({

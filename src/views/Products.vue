@@ -26,7 +26,9 @@
         :key="product.product_id"
         class="col mb-1 g-3"
       >
-        <div class="card shadow-md rounded-0">
+        <div 
+          class="card shadow-md rounded-0"  
+          @click="goToProductDetail(product.product_id)">
           <img
             class="card-img-top rounded-0"
             :src="product.image_url"
@@ -124,10 +126,12 @@
 
 
 <script setup>
-  import { ref, onMounted, watch, onBeforeUnmount, computed } from 'vue';
+  import { ref, onMounted, watch, onBeforeUnmount, computed, defineAsyncComponent } from 'vue';
   import { useRoute, useRouter } from 'vue-router'; 
-  import { useProductStore } from '../stores/products';  
-  import FilterAccordion from '../components/FilterAccordion.vue';
+  import { useProductStore } from '../stores/products';   
+
+  // Lazy component
+  const FilterAccordion = defineAsyncComponent(() => import('../components/FilterAccordion.vue'));
 
   const route = useRoute();
   const router = useRouter();
@@ -228,6 +232,13 @@
     isSidebarOpen.value = false;
     document.body.style.overflow = '';
   };
+
+  const goToProductDetail = (productId) => {
+    router.push({ 
+      name: 'product-detail', 
+      params: { id: productId } 
+    });
+  }; 
 </script>
 
 

@@ -121,13 +121,15 @@
 
 
 <script setup>
-  import { ref, onMounted, computed, watch } from 'vue'; 
+  import { ref, onMounted, computed, watch, defineAsyncComponent } from 'vue'; 
   import { useAuthStore } from '../stores/auth';  
   import { useProductStore } from '../stores/products';  
-  import { useRouter, useRoute } from 'vue-router';
-  import ProductDelete from '../components/ProductDelete.vue';
-  import ProductInsert from '../components/ProductInsert.vue';
-  import ProductUpdate from '../components/ProductUpdate.vue'; 
+  import { useRouter, useRoute } from 'vue-router'; 
+
+  // Lazy components
+  const ProductInsert = defineAsyncComponent(() => import('../components/ProductInsert.vue'));
+  const ProductUpdate = defineAsyncComponent(() => import('../components/ProductUpdate.vue'));
+  const ProductDelete = defineAsyncComponent(() => import('../components/ProductDelete.vue'));
 
   const authStore = useAuthStore();
   const productStore = useProductStore(); 
@@ -176,13 +178,15 @@
 
   const filteredProducts = computed(() => { 
     return productStore.products.filter(p => {
-      const matchName = p.name.toLowerCase().includes(search.value.toLowerCase());
-      const matchType = p.type.toLowerCase().includes(search.value.toLowerCase());
-      const matchBrand = p.brand.toLowerCase().includes(search.value.toLowerCase());
-      const matchPrice = p.price.toString().includes(search.value);
-      const matchGender = p.gender.toLowerCase().includes(search.value.toLowerCase());
-      const matchCategory = p.category.toLowerCase().includes(search.value.toLowerCase());
-      return matchName || matchType || matchBrand || matchPrice || matchGender || matchCategory;
+      const q = search.value.toLowerCase();
+      return (
+        p.name.toLowerCase().includes(q) ||
+        p.type.toLowerCase().includes(q) ||
+        p.brand.toLowerCase().includes(q) ||
+        p.price.toString().includes(q) ||
+        p.gender.toLowerCase().includes(q) ||
+        p.category.toLowerCase().includes(q)
+      );
     });
   });
 

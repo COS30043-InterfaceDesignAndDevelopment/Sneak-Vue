@@ -122,7 +122,7 @@
     data.value = mockData.map(d => d);
     sneakerData.value = mockData.filter(d => d.type === "Sneakers").map(d => d);
     clothingData.value = mockData.filter(d => d.type !== "Sneakers").map(d => d);
-  })
+  });
 
 </script>
 
