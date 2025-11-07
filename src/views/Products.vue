@@ -12,7 +12,7 @@
 
     
     <!-- Loading State -->
-    <div v-if="isLoading" class="text-center py-5">
+    <div v-if="productStore.isLoadingDataset" class="text-center py-5">
       <div class="spinner-border text-danger" role="status">
         <span class="visually-hidden">Loading...</span>
       </div>
@@ -144,7 +144,7 @@
                     <label class="btn btn-outline-dark w-100" for="gender-all">All</label>
                   </div>
                   <div
-                    v-for="(pGender, index) in [...new Set(products.map(p => p.gender))]"
+                    v-for="(pGender, index) in [...new Set(productStore.products.map(p => p.gender))]"
                     :key="index" 
                     class="col-4"
                   > 
@@ -170,7 +170,7 @@
                     <label class="btn btn-outline-dark w-100" for="type-all">All</label>
                   </div>
                   <div
-                    v-for="(pType, index) in [...new Set(products.map(p => p.type))]"
+                    v-for="(pType, index) in [...new Set(productStore.products.map(p => p.type))]"
                     :key="index" 
                     class="col-4"
                   > 
@@ -196,7 +196,7 @@
                     <label class="btn btn-outline-dark w-100" for="category-all">All</label>
                   </div>
                   <div
-                    v-for="(pCategory, index) in [...new Set(products.map(p => p.category))]"
+                    v-for="(pCategory, index) in [...new Set(productStore.products.map(p => p.category))]"
                     :key="index" 
                     class="col-4"
                   > 
@@ -222,7 +222,7 @@
                     <label class="btn btn-outline-dark w-100" for="brand-all">All</label>
                   </div>
                   <div
-                    v-for="(pBrand, index) in [...new Set(products.map(p => p.brand))]"
+                    v-for="(pBrand, index) in [...new Set(productStore.products.map(p => p.brand))]"
                     :key="index" 
                     class="col-4"
                   > 
@@ -244,16 +244,13 @@
 <script setup>
   import { ref, onMounted, watch, onBeforeUnmount, computed } from 'vue';
   import { useRoute, useRouter } from 'vue-router'; 
+  import { useProductStore } from '../stores/products';  
   import SliderElement from '@vueform/slider'
 
-
-  const API = "http://127.0.0.1:8000";
   const route = useRoute();
   const router = useRouter();
-
-  const products = ref([]); 
-  const isLoading = ref(false);
-  const error = ref('');
+  const productStore = useProductStore();
+  
   const isSidebarOpen = ref(false); 
   const search = ref(route.query.search || '');
   const gender = ref(route.query.gender || 'all');
@@ -275,25 +272,13 @@
       type.value = route.query.type;
     };
 
-    fetchProducts();
-  });
-
-  const fetchProducts = async () => {
-    isLoading.value = true;
-    try {
-      const res = await fetch(`${API}/products`);
-      products.value = await res.json();
-    } catch (e) {
-      console.error('Error fetching all products:', e);
-      error.value = 'Failed to fetch all products information';
-      alert('Failed to fetch all products information');
-    } finally {
-      isLoading.value = false;
-    }
-  };
+    if (!productStore.products.length) {
+      productStore.fetchProducts();
+    };
+  }); 
 
   const filteredProducts = computed(() => { 
-    return products.value.filter((p) => {
+    return productStore.products.filter((p) => {
       const matchSearch = p.name.toLowerCase().includes(search.value.toLowerCase());
       const matchPriceRange = (priceRange.value[0] === 0 && priceRange.value[1] === 1000) 
         || (p.price >= priceRange.value[0] && p.price <= priceRange.value[1]);

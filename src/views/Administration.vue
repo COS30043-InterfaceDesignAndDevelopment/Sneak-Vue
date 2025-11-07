@@ -1,13 +1,13 @@
 <template>
   <div class="container mb-5">
-    <div v-if="auth.isAuthorised"> 
+    <div v-if="authStore.isAuthorised"> 
       <div class="row">
         <!-- Main Content -->
         <div class="col-12">
           <div class="pt-2 pb-2 mb-3 border-bottom">
             <h3 class="text-center mb-4" style="letter-spacing: 2px;">PRODUCT MANAGEMENT</h3> 
             <!-- Loading State -->
-            <div v-if="isLoadingDataset" class="px-2 mb-3 fw-normal text-center">
+            <div v-if="productStore.isLoadingDataset" class="px-2 mb-3 fw-normal text-center">
               <span class="spinner-border text-danger" role="status">
                 <span class="visually-hidden">Loading...</span>
               </span>
@@ -112,7 +112,7 @@
               <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-              <form @submit.prevent="insertProduct">
+              <form @submit.prevent="productStore.insertProduct(newProduct)">
                 <div class="row">
                   <div class="col-md-6 mb-3">
                     <label class="form-label">Product Name</label>
@@ -169,7 +169,7 @@
                 </div>
 
                 <div class="border-top pt-3 d-flex justify-content-end align-items-center">
-                  <div v-if="isLoading" class="my-auto px-3 fw-normal">
+                  <div v-if="productStore.isProcessing" class="my-auto px-3 fw-normal">
                     <div class="spinner-border text-success" role="status">
                       <span class="visually-hidden">Loading...</span>
                     </div>
@@ -192,7 +192,7 @@
               <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-              <form @submit.prevent="updateProduct">
+              <form @submit.prevent="productStore.updateProduct(productDetails)">
                 <div class="row">
                   <div class="col-md-6 mb-3">
                     <label class="form-label">Product Name</label>
@@ -249,7 +249,7 @@
                 </div>
 
                 <div class="border-top pt-3 d-flex justify-content-end">
-                  <div v-if="isLoading" class="my-auto px-3 fw-normal">
+                  <div v-if="productStore.isProcessing" class="my-auto px-3 fw-normal">
                     <div class="spinner-border text-warning" role="status">
                       <span class="visually-hidden">Loading...</span>
                     </div>
@@ -275,8 +275,8 @@
               <p>Are you sure you want to delete this product?</p>
               <p class="text-muted mb-0">This action cannot be undone.</p>
 
-              <form @submit.prevent="deleteProduct" class="border-top pt-3 mt-2 d-flex justify-content-end">
-                <div v-if="isLoading" class="my-auto px-3 fw-normal">
+              <form @submit.prevent="productStore.deleteProduct(productId)" class="border-top pt-3 mt-2 d-flex justify-content-end">
+                <div v-if="productStore.isProcessing" class="my-auto px-3 fw-normal">
                   <div class="spinner-border text-danger" role="status">
                     <span class="visually-hidden">Loading...</span>
                   </div>
@@ -300,17 +300,14 @@
 <script setup>
   import { ref, onMounted, computed, watch } from 'vue'; 
   import { useAuthStore } from '../stores/auth';  
+  import { useProductStore } from '../stores/products';  
   import { useRouter, useRoute } from 'vue-router';
- 
-  const API = "http://127.0.0.1:8000"; 
-  const auth = useAuthStore(); 
+  
+  const authStore = useAuthStore();
+  const productStore = useProductStore(); 
   const route = useRoute();
-  const router = useRouter();
-  const products = ref([]); 
-  const error = ref('');
-  const search = ref(route.query.search || '');
-  const isLoadingDataset = ref(false);
-  const isLoading = ref(false);
+  const router = useRouter(); 
+  const search = ref(route.query.search || ''); 
   const currentPage = ref(1);
   const pageSize = 20;
   const productDetails = ref([]);
@@ -322,132 +319,12 @@
   });
 
 
-  onMounted(() => fetchProducts());
-
-  const fetchProducts = async () => {
-    isLoadingDataset.value = true;
-    try {
-      const res = await fetch(`${API}/products`);
-      products.value = await res.json();
-    } catch (e) {
-      console.error('Error fetching all products:', e);
-      error.value = 'Failed to fetch all products information';
-      alert('Failed to fetch all products information');
-    } finally {
-      isLoadingDataset.value = false;
-    }
-  };
-
-  const insertProduct = async () => {
-    isLoading.value = true; 
-    const formattedProduct = {
-      ...newProduct.value,
-      name: capitalizeWords(newProduct.value.name),
-      brand: capitalizeWords(newProduct.value.brand),
-      type: capitalizeWords(newProduct.value.type),
-      category: capitalizeWords(newProduct.value.category), 
+  onMounted(() => {  
+    if (!productStore.products.length) {
+      productStore.fetchProducts();
     };
-
-    try {
-      const res = await fetch(`${API}/products/insert`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }, 
-        body: JSON.stringify(formattedProduct)
-      });
-
-      if(!res.ok) {
-        const error = await res.text();
-        alert('Add new product failed: ', error);
-        return;
-      }
-
-      const result = await res.json(); 
-      if (result.success) {
-        alert('Product added successfully!');
-      }
-    } catch (e) {
-      console.error('An error occured: ', e);
-      alert('An error occured: ', e);
-    } finally {
-      isLoading.value = false;
-      window.location.reload();
-    }
-  };
-
-  const deleteProduct = async () => {
-    isLoading.value = true; 
-
-    try {
-      const res = await fetch(`${API}/products/delete/${productId.value}`, {
-        method: 'DELETE'
-      });
-
-      if (!res.ok) {
-        const error = await res.text();
-        alert('Delete product failed: ', error);
-        return;
-      }
-
-      const result = await res.json(); 
-      if (result.success) {
-        alert('Product deleted successfully!');
-      } 
-    } catch (e) {
-      console.error('An error occured during deleting...', e);
-      alert('An error occured during deleting...');
-    } finally {
-      isLoading.value = false;
-      window.location.reload();
-    }
-  };
-
-  const updateProduct = async () => {
-    isLoading.value = true;
-    const formattedProduct = {
-      ...productDetails.value,
-      name: capitalizeWords(productDetails.value.name),
-      brand: capitalizeWords(productDetails.value.brand),
-      type: capitalizeWords(productDetails.value.type),
-      category: capitalizeWords(productDetails.value.category), 
-    };
-
-    try {
-      const res = await fetch(`${API}/products/update/${productDetails.value.product_id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        }, 
-        body: JSON.stringify(formattedProduct)
-      });
-
-      if(!res.ok) {
-        const error = await res.text();
-        alert('Update product failed: ', error);
-        return;
-      }
-
-      const result = await res.json(); 
-      if (result.success) {
-        alert('Product updated successfully!');
-      }
-    } catch (e) {
-      console.error('An error occured: ', e);
-      alert('An error occured: ', e);
-    } finally {
-      isLoading.value = false;
-      window.location.reload();
-    }
-  };
-
-  function capitalizeWords(str) {
-    if (!str) return '';
-    return str.toLowerCase().split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-  }; 
-
+  });
+  
   const resetFields = () => {
     newProduct.value = {
       name: '', type: '', brand: '', description: '', 
@@ -462,7 +339,6 @@
     return filteredProducts.value.slice(start, start + pageSize);
   });
 
-
   watch([search, currentPage], () => {
     router.replace({
       query: {
@@ -472,9 +348,8 @@
     });
   });
 
-
   const filteredProducts = computed(() => { 
-    return products.value.filter(p => {
+    return productStore.products.filter(p => {
       const matchName = p.name.toLowerCase().includes(search.value.toLowerCase());
       const matchType = p.type.toLowerCase().includes(search.value.toLowerCase());
       const matchBrand = p.brand.toLowerCase().includes(search.value.toLowerCase());
