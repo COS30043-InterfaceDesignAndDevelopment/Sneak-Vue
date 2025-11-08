@@ -4,6 +4,7 @@ import { ref } from "vue";
 export const useProductStore = defineStore('products', () => {
   const API = "http://127.0.0.1:8000"; 
   const products = ref([]);
+  const productValue = ref();
   const error = ref('');
   const isLoadingDataset = ref(false);
   const isProcessing = ref(false);
@@ -130,6 +131,32 @@ export const useProductStore = defineStore('products', () => {
   };
 
 
+  const fetchSingleProduct = async (productId) => {
+    isProcessing.value = true;
+
+    try {
+      const res = await fetch(`${API}/products/${productId}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      const data = await res.json();
+      if (!res.ok) { 
+        const error = await res.text();
+        alert('Fetch product failed: ' + data?.message);
+        return;
+      } 
+
+      productValue.value = data;
+    } catch (e) {
+      console.error('An error occured during fetching...', e);
+      alert('An error occured during fetching...'); 
+    } finally {
+      isProcessing.value = false;
+    }
+  };
+
+
   function capitalizeWords(str) {
     if (!str) return '';
     return str.toLowerCase().split(' ')
@@ -140,12 +167,14 @@ export const useProductStore = defineStore('products', () => {
 
   return { 
     products,
+    productValue,
     error,
     isLoadingDataset, 
     isProcessing,
     fetchProducts,
     insertProduct,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    fetchSingleProduct
   }
 });

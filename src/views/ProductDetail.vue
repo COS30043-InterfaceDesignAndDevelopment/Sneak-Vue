@@ -5,149 +5,182 @@
       <ol class="breadcrumb">
         <router-link class="breadcrumb-item text-decoration-none" to="/">Home</router-link>
         <router-link class="breadcrumb-item text-decoration-none" to="/products">Products</router-link>
-        <li class="breadcrumb-item active">{{ product.name }}</li>
+        <li class="breadcrumb-item active">{{ product?.name }}</li>
       </ol>
     </nav>
 
+    <!-- Loading State -->
+    <div v-if="productStore.isProcessing" class="text-center py-5">
+      <div class="spinner-border text-danger" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+
+    <div v-else-if="!product" class="text-center py-5 text-muted">
+      <p>Product not found.</p>
+    </div>
+
+
     <!-- Product Detail Section -->
-    <div class="row g-4 mb-5"> 
-      <div class="col-lg-6">
-        <div class="mb-3">
-          <img :src="selectedImage" alt="Product Image" class="product-image">
+    <div v-else-if="product">    
+      <div class="row g-3 mb-5"> 
+        <div class="col-md-6 col-lg-7">
+          <div class="mb-3">
+            <img :src="selectedImage" alt="Product Image" class="product-image">
+          </div>
+          <div class="d-flex gap-2 flex-wrap">
+            <img v-for="(img, index) in productImages" 
+              :key="index"
+              :src="img" 
+              :class="['thumbnail-img', { active: selectedImage === img }]"
+              @click="selectedImage = img"
+              alt="Thumbnail">
+          </div>
         </div>
-        <div class="d-flex gap-2 flex-wrap">
-          <img v-for="(img, index) in product.images" 
-                :key="index"
-                :src="img" 
-                :class="['thumbnail-img', { active: selectedImage === img }]"
-                @click="selectedImage = img"
-                alt="Thumbnail">
+
+        
+        <div class="col-md-6 col-lg-5">
+          <div class="product-info-card">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div>
+                <span class="badge bg-danger badge-custom me-2">{{ product.category }}</span>
+                <span class="badge bg-success badge-custom">{{ product.gender }}</span>
+              </div>
+              <div class="rating-stars">
+                <i v-for="n in 5" :key="n" 
+                    :class="n <= Math.round(averageRating) ? 'fas fa-star' : 'far fa-star'"></i>
+                <span class="ms-2 text-muted">({{ reviewStore.reviews.length }} reviews)</span>
+              </div>
+            </div>
+
+            <h1 class="h3 mb-1 text-uppercase" style="letter-spacing: 2px;">{{ product.name }}</h1>
+            <p class="text-muted small">Brand: <strong>{{ product.brand }}</strong> | Type: <strong>{{ product.type }}</strong></p> 
+            <h3 class="mb-4 mt-4">${{ product.price.toFixed(2) }}</h3> 
+            <p class="mb-4">{{ product.description }}</p>
+
+            <!-- Colors -->
+            <div class="mb-4">
+              <h6 class="mb-3">Color: <span class="text-muted fw-normal">{{ selectedColor.name }}</span></h6>
+              <div class="d-flex gap-2">
+                <div v-for="color in colors" 
+                  :key="color.name"
+                  :class="['color-option', { active: selectedColor.name === color.name }]"
+                  :style="{ backgroundColor: color.hex }"
+                  @click="selectedColor = color"
+                  :title="color.name">
+                </div>
+              </div>
+            </div>
+
+            <!-- Size Selection -->
+            <div class="mb-4">
+              <h6 class="fw-bold mb-3">Size: <span class="text-muted fw-normal">{{ selectedSize || 'Select size' }}</span></h6>
+              <div class="d-flex gap-2 flex-wrap">
+                <div v-for="size in hardcodedSizes" 
+                  :key="size"
+                  :class="['size-option', { active: selectedSize === size }]"
+                  @click="selectedSize = size"
+                  >{{ size }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex gap-3">
+              <button class="btn btn-add-cart flex-grow-1" @click="addToCart">
+                <i class="fas fa-shopping-cart me-2"></i>ADD TO CART
+              </button>
+              <button :class="['btn btn-favorite', { active: isFavorite }]" @click="toggleFavorite">
+                <i :class="isFavorite ? 'bi bi-heart-fill' : 'bi bi-heart'"></i>
+              </button>
+            </div>
+
+            <div class="alert alert-info alert-custom mt-3 mb-0" v-if="cartMessage">
+              <i class="bi bi-bag-check me-2"></i> {{ cartMessage }}
+            </div>
+          </div>
         </div>
       </div>
 
       
-      <div class="col-lg-6">
-        <div class="product-info-card">
-          <div class="d-flex justify-content-between align-items-start mb-3">
-            <div>
-              <span class="badge bg-dark badge-custom me-2">{{ product.category }}</span>
-              <span class="badge bg-secondary badge-custom">{{ product.gender }}</span>
-            </div>
-            <div class="rating-stars">
-              <i v-for="n in 5" :key="n" 
-                  :class="n <= Math.round(averageRating) ? 'fas fa-star' : 'far fa-star'"></i>
-              <span class="ms-2 text-muted">({{ reviews.length }} reviews)</span>
-            </div>
-          </div>
+      <hr class="container text-black-50 mb-5"></hr>
 
-          <h1 class="h2 fw-bold mb-2 text-uppercase letter-spacing">{{ product.name }}</h1>
-          <p class="text-muted mb-3 text-uppercase small">Brand: <strong>{{ product.brand }}</strong> | Type: <strong>{{ product.type }}</strong></p>
-          
-          <h3 class="fw-bold mb-4">${{ product.price.toFixed(2) }}</h3>
 
-          <p class="mb-4">{{ product.description }}</p>
 
-          <!-- Color Selection -->
-          <div class="mb-4">
-            <h6 class="fw-bold mb-3 text-uppercase">Color: <span class="text-muted fw-normal">{{ selectedColor.name }}</span></h6>
-            <div class="d-flex gap-2">
-              <div v-for="color in product.colors" 
-                    :key="color.name"
-                    :class="['color-option', { active: selectedColor.name === color.name }]"
-                    :style="{ backgroundColor: color.hex }"
-                    @click="selectedColor = color"
-                    :title="color.name">
-              </div>
+      <!-- Reviews Section -->
+      <div class="row">
+        <div class="col-12">
+          <h3 class="mb-4 text-uppercase text-center" style="letter-spacing: 2px;">Reviews</h3>
+
+          <!-- Loading State -->
+          <div v-if="reviewStore.isLoading" class="text-center py-5">
+            <div class="spinner-border text-danger" role="status">
+              <span class="visually-hidden">Loading...</span>
             </div>
           </div>
 
-          <!-- Size Selection -->
-          <div class="mb-4">
-            <h6 class="fw-bold mb-3 text-uppercase">Size (US): <span class="text-muted fw-normal">{{ selectedSize || 'Select Size' }}</span></h6>
-            <div class="d-flex gap-2 flex-wrap">
-              <div v-for="size in product.sizes" 
-                    :key="size"
-                    :class="['size-option', { active: selectedSize === size }]"
-                    @click="selectedSize = size">
-                {{ size }}
-              </div>
-            </div>
-          </div>
-
-          <!-- Action Buttons -->
-          <div class="d-flex gap-3 mb-3">
-            <button class="btn btn-add-cart flex-grow-1" @click="addToCart">
-              <i class="fas fa-shopping-cart me-2"></i>ADD TO CART
-            </button>
-            <button :class="['btn btn-favorite', { active: isFavorite }]" @click="toggleFavorite">
-              <i :class="isFavorite ? 'fas fa-heart' : 'far fa-heart'"></i>
-            </button>
-          </div>
-
-          <div class="alert alert-info alert-custom" v-if="cartMessage">
-            <i class="fas fa-check-circle me-2"></i>{{ cartMessage }}
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Reviews Section -->
-    <div class="row">
-      <div class="col-12">
-        <h3 class="fw-bold mb-4 text-uppercase letter-spacing">Customer Reviews</h3>
-
-        <!-- Write Review Form -->
-        <div class="write-review-card">
-          <h5 class="fw-bold mb-3 text-uppercase">Write a Review</h5>
-          <div class="mb-3">
-            <label class="form-label fw-semibold text-uppercase small">Your Rating</label>
-            <div class="star-rating-input">
-              <i v-for="n in 5" 
+          <!-- Write Review Form -->
+          <div class="write-review-card">
+            <h5 class="fw-bold mb-3">Write a Review</h5>
+            <div class="mb-3">
+              <label class="form-label fw-semibold small">Your Rating</label>
+              <div class="star-rating-input">
+                <i v-for="n in 5" 
                   :key="n"
-                  :class="['fas fa-star', { active: n <= newReview.rating }]"
+                  :class="['bi bi-star me-2', { active: n <= newReview.rating }]"
                   @click="newReview.rating = n"
                   @mouseover="hoverRating = n"
                   @mouseleave="hoverRating = 0"></i>
+              </div> 
             </div>
-          </div>
-          <div class="mb-3">
-            <label class="form-label fw-semibold text-uppercase small">Your Review</label>
-            <textarea v-model="newReview.comment" 
-                      class="form-control form-control-custom" 
-                      rows="3" 
-                      placeholder="Share your experience with this product..."></textarea>
-          </div>
-          <button class="btn btn-dark btn-custom" @click="submitReview">
-            <i class="fas fa-paper-plane me-2"></i>SUBMIT REVIEW
-          </button>
-        </div>
+            <div class="mb-3">
+              <label class="form-label fw-semibold small">Your Review</label>
+              <textarea v-model="newReview.comment" 
+                class="form-control form-control-custom" 
+                rows="3" 
+                placeholder="Share your experience with this product..."></textarea>
+            </div>
+            <div class="d-flex align-items-center">
+              <button class="btn btn-dark btn-custom" @click="submitReview">
+                <i class="bi bi-send-fill me-2"></i>SUBMIT REVIEW
+              </button>
 
-        <!-- Reviews List -->
-        <div v-for="(review, index) in reviews" :key="index" class="review-card">
-          <div class="d-flex justify-content-between align-items-start mb-2">
-            <div>
-              <h6 class="fw-bold mb-1 text-uppercase">{{ review.user }}</h6>
-              <div class="rating-stars mb-2">
-                <i v-for="n in 5" :key="n" 
-                    :class="n <= review.rating ? 'fas fa-star' : 'far fa-star'"></i>
+              <div v-if="reviewStore.isSending" class="text-center ps-3 my-auto">
+                <span class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </span>
               </div>
+
             </div>
-            <small class="text-muted text-uppercase">{{ review.date }}</small>
           </div>
-          <p class="mb-3">{{ review.comment }}</p>
-          <div class="d-flex gap-2">
-            <span :class="['like-btn', { active: review.userLiked }]" 
-                  @click="toggleLike(index)">
-              <i class="fas fa-thumbs-up me-1"></i>{{ review.likes }}
-            </span>
-            <span :class="['dislike-btn', { active: review.userDisliked }]" 
-                  @click="toggleDislike(index)">
-              <i class="fas fa-thumbs-down me-1"></i>{{ review.dislikes }}
-            </span>
+
+          <!-- Reviews List -->
+          <div v-for="(review, index) in reviewStore.reviews" :key="review.review_id || index" class="review-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <div>
+                <h6 class="fw-bold mb-0">{{ review.username }}</h6>
+                <div class="rating-stars mb-2">
+                  <i v-for="n in 5" :key="n" class="me-1" 
+                    :class="n <= review.rating ? 'bi bi-star-fill' : 'bi bi-star'"></i>
+                </div>
+              </div>
+              <small class="text-muted">{{ review.date }}</small>
+            </div>
+            <p class="mb-3">{{ review.comment }}</p>
+            <div class="d-flex gap-2">
+              <span :class="['like-btn', { active: review.userLiked }]" 
+                  @click="reactReview(review.review_id, 'like')">
+                <i class="bi bi-hand-thumbs-up me-1"></i>{{ review.likes }}
+              </span>
+              <span :class="['dislike-btn', { active: review.userDisliked }]" 
+                  @click="reactReview(review.review_id, 'dislike')">
+                <i class="bi bi-hand-thumbs-down me-1"></i>{{ review.dislikes }}
+              </span>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+      </div> 
+    </div> 
   </div>
 </template>
 
@@ -155,42 +188,30 @@
 
 <script setup>
   import { ref, computed, onMounted } from 'vue';
-  import { useRoute } from 'vue-router';
+  import { useRoute, useRouter } from 'vue-router';
+  import { useProductStore } from '../stores/products';
+  import { useReviewStore } from '../stores/reviews'; 
+  import { useAuthStore } from '../stores/auth'; 
 
   const route = useRoute();
+  const router = useRouter();
+  const authStore = useAuthStore();
+  const productStore = useProductStore();
+  const reviewStore = useReviewStore();
   const productId = route.params.id; 
-
-
+  const product = ref(null);
+  const productImages = ref([]);
   
-
-
-
-
-  const product = ref({
-    name: 'Nike Air Max 270',
-    brand: 'Nike',
-    type: 'Running Shoes',
-    category: 'Lifestyle',
-    gender: 'Unisex',
-    price: 159.99,
-    description: 'The Nike Air Max 270 delivers visible cushioning under every step. The design is inspired by two icons of big Air: the Air Max 180 and Air Max 93. It features Nike\'s biggest heel Air unit yet for a super-soft ride that feels as impossible as it looks.',
-    images: [
-      'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600',
-      'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=600',
-      'https://images.unsplash.com/photo-1605348532760-6753d2c43329?w=600',
-      'https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?w=600'
-    ],
-    colors: [
-      { name: 'Black', hex: '#000000' },
-      { name: 'White', hex: '#FFFFFF' },
-      { name: 'Red', hex: '#DC3545' },
-      { name: 'Blue', hex: '#0D6EFD' }
-    ],
-    sizes: [7, 7.5, 8, 8.5, 9, 9.5, 10, 10.5, 11, 11.5, 12]
-  });
-
+  const colors = [
+    { name: 'Black', hex: '#000000' },
+    { name: 'White', hex: '#FFFFFF' },
+    { name: 'Navy', hex: '#1e3a8a' },
+    { name: 'Gray', hex: '#6b7280' }
+  ];
+  
+  const hardcodedSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
   const selectedImage = ref('');
-  const selectedColor = ref({});
+  const selectedColor = ref(colors[0]);
   const selectedSize = ref(null);
   const isFavorite = ref(false);
   const cartMessage = ref('');
@@ -199,54 +220,18 @@
     comment: ''
   });
   const hoverRating = ref(0);
-  const reviews = ref([
-    {
-      user: 'John Smith',
-      rating: 5,
-      comment: 'Absolutely love these sneakers! Super comfortable and stylish. Perfect for everyday wear.',
-      date: '2 days ago',
-      likes: 12,
-      dislikes: 0,
-      userLiked: false,
-      userDisliked: false
-    },
-    {
-      user: 'Sarah Johnson',
-      rating: 4,
-      comment: 'Great quality and design. The Air Max cushioning is amazing. Only downside is they run slightly large.',
-      date: '1 week ago',
-      likes: 8,
-      dislikes: 1,
-      userLiked: false,
-      userDisliked: false
-    },
-    {
-      user: 'Mike Davis',
-      rating: 5,
-      comment: 'Best sneakers I\'ve ever owned! Worth every penny. The comfort level is unmatched.',
-      date: '2 weeks ago',
-      likes: 15,
-      dislikes: 0,
-      userLiked: false,
-      userDisliked: false
-    },
-    {
-      user: 'Emily Brown',
-      rating: 4,
-      comment: 'Really nice shoes with excellent cushioning. Would recommend sizing down half a size.',
-      date: '3 weeks ago',
-      likes: 6,
-      dislikes: 2,
-      userLiked: false,
-      userDisliked: false
-    }
-  ]);
+
+  // Computed property to get current user ID
+  const currentUserId = computed(() => {
+    return authStore.user?.user_metadata?.sub || null;
+  });
 
   const averageRating = computed(() => {
-    if (reviews.value.length === 0) return 0;
-    const sum = reviews.value.reduce((acc, review) => acc + review.rating, 0);
-    return sum / reviews.value.length;
+    if (reviewStore.reviews.length === 0) return 0;
+    const sum = reviewStore.reviews.reduce((acc, review) => acc + review.rating, 0);
+    return sum / reviewStore.reviews.length;
   });
+
 
   const addToCart = () => {
     if (!selectedSize.value) {
@@ -260,62 +245,69 @@
 
   const toggleFavorite = () => {
     isFavorite.value = !isFavorite.value;
-  };
+  }; 
 
-  const toggleLike = (index) => {
-    if (reviews.value[index].userDisliked) {
-      reviews.value[index].dislikes--;
-      reviews.value[index].userDisliked = false;
+  const submitReview = async () => {
+    // Check authentication
+    if (!authStore.isAuthenticated || !currentUserId.value) {
+      alert('Please login to submit a review!');
+      router.push('/login');
+      return;
     }
-    if (reviews.value[index].userLiked) {
-      reviews.value[index].likes--;
-      reviews.value[index].userLiked = false;
-    } else {
-      reviews.value[index].likes++;
-      reviews.value[index].userLiked = true;
-    }
-  };
 
-  const toggleDislike = (index) => {
-    if (reviews.value[index].userLiked) {
-      reviews.value[index].likes--;
-      reviews.value[index].userLiked = false;
-    }
-    if (reviews.value[index].userDisliked) {
-      reviews.value[index].dislikes--;
-      reviews.value[index].userDisliked = false;
-    } else {
-      reviews.value[index].dislikes++;
-      reviews.value[index].userDisliked = true;
-    }
-  };
-
-  const submitReview = () => {
     if (newReview.value.rating === 0) {
       alert('Please select a rating!');
       return;
     }
+
     if (newReview.value.comment.trim() === '') {
       alert('Please write a review!');
       return;
     }
-    reviews.value.unshift({
-      user: 'You',
-      rating: newReview.value.rating,
-      comment: newReview.value.comment,
-      date: 'Just now',
-      likes: 0,
-      dislikes: 0,
-      userLiked: false,
-      userDisliked: false
-    });
-    newReview.value = { rating: 0, comment: '' };
+    
+    await reviewStore.insertReview(
+      newReview.value, 
+      currentUserId.value, 
+      productId
+    );
+ 
+    // Refetch reviews with userId to update the list
+    await reviewStore.fetchReviews(productId, currentUserId.value);
+    newReview.value = { rating: 0, comment: '' }; 
   };
 
-  onMounted(() => {
-    selectedImage.value = product.value.images[0];
-    selectedColor.value = product.value.colors[0];
-  }); 
+  const reactReview = async (reviewId, action) => {
+    // Check authentication
+    if (!authStore.isAuthenticated || !currentUserId.value) {
+      alert('Please login to react to reviews!');
+      router.push('/login');
+      return;
+    }
+
+    await reviewStore.actionReview(reviewId, action, currentUserId.value); 
+  };
+
+
+  onMounted(async () => {  
+    product.value = productStore.products.find(p => p.product_id === productId);
+
+    if (!product.value) {
+      await productStore.fetchSingleProduct(productId);
+      product.value = productStore.productValue; 
+    }
+
+    if (product.value) {
+      productImages.value = [
+        product.value?.image_url || 'https://placehold.co/600x600?text=Main+Image',
+        'https://placehold.co/600x600?text=Image+2',
+        'https://placehold.co/600x600?text=Image+3',
+        'https://placehold.co/600x600?text=Image+4'
+      ];
+      selectedImage.value = productImages.value[0];
+    }
+ 
+    await reviewStore.fetchReviews(productId, currentUserId.value);
+  });
 </script>
 
 
@@ -326,17 +318,15 @@
   }
 
   .product-image {
-    width: 100%;
+    width: 100%;  
+    height: 560px;
+    object-fit: contain;
     border-radius: 0;
     box-shadow: none;
-    border: 1px solid #e0e0e0;
+    border: 1px solid #e5e7eb;
+    background-color: #eeeff0;
     transition: all 0.3s ease;
-  }
-
-  .product-image:hover {
-    transform: none;
-    border-color: #000;
-  }
+  } 
 
   .thumbnail-img {
     width: 80px;
@@ -344,20 +334,20 @@
     object-fit: cover;
     border-radius: 0;
     cursor: pointer;
-    border: 2px solid #e0e0e0;
+    border: 2px solid #e5e7eb;
     transition: all 0.2s ease;
   }
 
   .thumbnail-img:hover, .thumbnail-img.active {
-    border-color: #000;
+    border: 1px solid #000;
   }
 
   .color-option {
-    width: 45px;
-    height: 45px;
+    width: 30px;
+    height: 30px;
     border-radius: 0;
     cursor: pointer;
-    border: 3px solid #e0e0e0;
+    border: 1px solid #e5e7eb;
     transition: all 0.2s ease;
     display: inline-block;
   }
@@ -368,15 +358,13 @@
   }
 
   .size-option {
-    min-width: 65px;
-    padding: 12px 16px;
-    border: 2px solid #000;
+    min-width: 35px;
+    padding: 7px 14px; 
     border-radius: 0;
     cursor: pointer;
     transition: all 0.2s ease;
-    text-align: center;
-    font-weight: 600;
-    background-color: #fff;
+    text-align: center; 
+    background-color: #e9ebee;
     color: #000;
   }
 
@@ -391,64 +379,57 @@
   }
 
   .btn-add-cart {
-    background-color: #000;
+    background-color: #b11414;
     color: white;
-    padding: 14px 40px;
+    padding: 10px 40px;
     border-radius: 0;
     font-weight: 700;
-    border: 2px solid #000;
     transition: all 0.2s ease;
     text-transform: uppercase;
     letter-spacing: 1px;
   }
 
   .btn-add-cart:hover {
+    border: 1px solid #000;
     background-color: #fff;
-    color: #000;
+    color: #b11414;
     transform: none;
     box-shadow: none;
   }
 
   .btn-favorite {
-    border: 2px solid #000;
-    padding: 14px 20px;
+    border: 1px solid #000; 
     border-radius: 0;
+    font-size: 1.4rem;
     transition: all 0.2s ease;
     background-color: #fff;
   }
 
   .btn-favorite:hover {
-    background-color: #000;
-    color: #fff;
-  }
-
-  .btn-favorite.active {
-    border-color: #000;
-    background-color: #000;
-    color: #fff;
-  }
+    background-color: #e9ebee; 
+  } 
 
   .btn-favorite.active i {
-    color: #dc3545;
+    color: #b11414;
   }
 
   .rating-stars i {
     color: #000;
-    font-size: 1.1rem;
+    font-size: 0.7rem; 
   }
 
   .review-card {
-    background: #f9f9f9;
+    background: #f9fafb;
     border-radius: 0;
     padding: 25px;
     margin-bottom: 15px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid #e5e7eb;
     box-shadow: none;
   }
 
   .like-btn, .dislike-btn {
-    border: 1px solid #000;
-    padding: 6px 16px;
+    border: 1px solid #d1d5db;
+    padding: 5px 12px;
     border-radius: 0;
     font-size: 0.9rem;
     transition: all 0.2s ease;
@@ -460,6 +441,7 @@
   .like-btn:hover {
     background-color: #000;
     color: #fff;
+    border-color: #000;
   }
 
   .like-btn.active {
@@ -471,6 +453,7 @@
   .dislike-btn:hover {
     background-color: #000;
     color: #fff;
+    border-color: #000;
   }
 
   .dislike-btn.active {
@@ -483,32 +466,31 @@
     background: white;
     border-radius: 0;
     padding: 35px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid #e5e7eb;
     box-shadow: none;
   }
 
   .badge-custom {
-    padding: 8px 16px;
-    border-radius: 0;
-    font-weight: 700;
+    padding: 7px 14px;
+    border-radius: 0; 
     text-transform: uppercase;
     letter-spacing: 1px;
-    font-size: 0.75rem;
+    font-size: 0.65rem;
   }
   
   .write-review-card {
-    background: #f9f9f9;
+    background: #f9fafb;
     border-radius: 0;
     padding: 30px;
     margin-bottom: 25px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid #e5e7eb;
     box-shadow: none;
   }
 
   .star-rating-input i {
     cursor: pointer;
-    font-size: 1.5rem;
-    color: #e0e0e0;
+    font-size: 1.1rem;
+    color: #d1d5db;
     transition: color 0.2s ease;
   }
 
@@ -519,7 +501,7 @@
 
   .form-control-custom {
     border-radius: 0;
-    border: 2px solid #000;
+    border: 1px solid #d1d5db;
   }
 
   .form-control-custom:focus {
@@ -528,22 +510,19 @@
   }
 
   .btn-custom {
+    background-color: #1431b1;
     border-radius: 0;
-    padding: 12px 30px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    border: 2px solid #000;
+    padding: 10px 30px;  
+    letter-spacing: 1px; 
   }
 
   .btn-dark.btn-custom:hover {
     background-color: #fff;
-    color: #000;
+    color: #1431b1;
   }
 
   .alert-custom {
     border-radius: 0;
-    border: 2px solid #0dcaf0;
+    border: 1px solid #0dcaf0;
   }
-
 </style>

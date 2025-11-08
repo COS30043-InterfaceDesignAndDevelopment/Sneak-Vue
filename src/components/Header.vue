@@ -153,7 +153,7 @@
   }
 
   nav, .dropdown-menu {
-    background: linear-gradient(60deg, #f3f6fc 0%, #f5e9e9 100%);
+    background-color: #f4f6f8;
     z-index: 10 !important;
   }
 

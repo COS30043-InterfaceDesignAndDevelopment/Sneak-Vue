@@ -7,7 +7,7 @@
 }
 
 body {
-  background: linear-gradient(70deg, #e6edfa9c 0%, #f8f2f2a9 100%); 
+  background-color: #f4f6f8;
   z-index: -10;
   font-family: 'Cabin', serif;
 }
@@ -23,7 +23,7 @@ body {
  
 .btn-discover-wrapper {
   display: inline-block;
-  filter: drop-shadow(8px 8px 0px #b11414);
+  filter: drop-shadow(3px 3px 0px #b11414);
   transition: filter 0.3s ease, transform 0.3s ease;
 }
 
