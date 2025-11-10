@@ -172,6 +172,10 @@
     color: #000; 
   }
 
+  .card {
+    background-color: #fcfdff; 
+  }
+
   .card .input-group {
     border-radius: 20px;
     overflow: hidden;

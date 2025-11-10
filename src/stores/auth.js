@@ -118,6 +118,7 @@ export const useAuthStore = defineStore('auth', () => {
         alert('Logged out successful!');
         localStorage.removeItem('token');
         localStorage.removeItem('user_data');
+        window.location.reload();
         router.push('/login');
       };
 

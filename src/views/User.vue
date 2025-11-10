@@ -50,7 +50,7 @@
             </div> 
             <div class="d-flex justify-content-between mb-2">
               <span>Favorite Items</span>
-              <strong>5</strong>
+              <strong>{{ favoriteStore.favorites.length }}</strong>
             </div>
             <div class="d-flex justify-content-between">
               <span>Member Since</span>
@@ -102,8 +102,10 @@
   import { ref, onMounted, watch } from 'vue';
   import { useRouter } from 'vue-router';
   import { useAuthStore } from '../stores/auth';
+  import { useFavoriteStore } from '../stores/favorites';
   
   const authStore = useAuthStore();
+  const favoriteStore = useFavoriteStore();
   const router = useRouter();
   const creationYear = ref();
 

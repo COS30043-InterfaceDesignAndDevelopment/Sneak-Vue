@@ -23,7 +23,7 @@
 
     <!-- Product Detail Section -->
     <div v-else-if="product">    
-      <ProductInfo v-model="product" />
+      <ProductInfo v-model="product" :productId="productId" />
       
       <hr class="container text-black-50 mb-5"></hr>
 

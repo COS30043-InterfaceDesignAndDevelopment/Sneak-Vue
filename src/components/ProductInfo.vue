@@ -16,7 +16,7 @@
 
     
     <div class="col-md-6 col-lg-5">
-      <div class="product-info-card">
+      <div class="product-info-card border-0 shadow-sm">
         <div class="d-flex justify-content-between align-items-start mb-3">
           <div>
             <span class="badge bg-danger badge-custom me-2">{{ product.category }}</span>
@@ -67,7 +67,7 @@
             <i class="fas fa-shopping-cart me-2"></i>ADD TO CART
           </button>
           <button :class="['btn btn-favorite', { active: isFavorite }]" @click="toggleFavorite">
-            <i :class="isFavorite ? 'bi bi-heart-fill' : 'bi bi-heart'"></i>
+            <i :class="isFavorite ? 'bi bi-suit-heart-fill' : 'bi bi-suit-heart'"></i>
           </button>
         </div>
 
@@ -82,14 +82,21 @@
 
 
 <script setup>
-  import { ref, computed, onMounted } from 'vue';
-  import { useProductStore } from '../stores/products';
+  import { ref, computed, onMounted } from 'vue'; 
+  import { useRouter } from 'vue-router';
   import { useReviewStore } from '../stores/reviews'; 
+  import { useFavoriteStore } from '../stores/favorites';
+  import { useCartItemStore } from '../stores/cartItems';
+  import { useAuthStore } from '../stores/auth'; 
 
 
-  const reviewStore = useReviewStore();
-  const productStore = useProductStore();
+  const reviewStore = useReviewStore(); 
+  const favoriteStore = useFavoriteStore();
+  const cartItemStore = useCartItemStore();
+  const authStore = useAuthStore();
+  const router = useRouter();
   const product = defineModel();
+  const props = defineProps({ productId: String });
   
   const selectedSize = ref(null);
   const isFavorite = ref(false);
@@ -106,6 +113,7 @@
   const selectedColor = ref(colors[0]);
 
 
+  const currentUserId = computed(() => authStore.user?.user_metadata?.sub || null);
   const averageRating = computed(() => {
     if (reviewStore.reviews.length === 0) return 0;
     const sum = reviewStore.reviews.reduce((acc, review) => acc + review.rating, 0);
@@ -113,23 +121,66 @@
   });
   
 
-  const addToCart = () => {
+  const addToCart = async () => {
     if (!selectedSize.value) {
       cartMessage.value = 'Please select a size first!';
       setTimeout(() => cartMessage.value = '', 3000);
       return;
     }
+
+    // Check authentication
+    if (!authStore.isAuthenticated || !currentUserId.value) {
+      alert('Please login!');
+      router.push('/login');
+      return;
+    }
+
+    // Add to cart
+    await cartItemStore.insertCartItem(
+      currentUserId.value, 
+      props.productId, 
+      selectedColor.value.name, 
+      selectedSize.value
+    );
+
     cartMessage.value = `Added ${product.value.name} (Size: ${selectedSize.value}, Color: ${selectedColor.value.name}) to cart!`;
     setTimeout(() => cartMessage.value = '', 3000);
   };
 
-  const toggleFavorite = () => {
-    isFavorite.value = !isFavorite.value;
+  const checkIfFavorite = () => {
+    if (!currentUserId.value) return false;
+    return favoriteStore.favorites.some(fav => fav.product_id === props.productId);
+  };
+
+  const toggleFavorite = async () => {
+    // Check authentication
+    if (!authStore.isAuthenticated || !currentUserId.value) {
+      alert('Please login!');
+      router.push('/login');
+      return;
+    }
+
+    if (isFavorite.value) { 
+      const favoriteItem = favoriteStore.favorites.find(fav => fav.product_id === props.productId);
+      if (favoriteItem) {
+        await favoriteStore.removeFavorite(favoriteItem.favorite_id);
+        isFavorite.value = false;
+      }
+    } else { 
+      await favoriteStore.insertFavorite(currentUserId.value, props.productId);
+      isFavorite.value = true;
+    }
   }; 
 
 
 
-  onMounted(async () => {   
+  onMounted(async () => {
+    // Fetch favorites if user is logged in
+    if (currentUserId.value) {
+      await favoriteStore.fetchFavorites(currentUserId.value);
+      isFavorite.value = checkIfFavorite();
+    }
+   
     if (product.value) {
       productImages.value = [
         product.value?.image_url || 'https://placehold.co/600x600?text=Main+Image',
@@ -251,6 +302,7 @@
     border-radius: 0;
     padding: 35px;
     border: 1px solid #e5e7eb;
+    background-color: #fcfdff; 
     box-shadow: none;
   }
 

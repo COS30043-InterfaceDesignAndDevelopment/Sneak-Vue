@@ -39,7 +39,7 @@
     <div>
       <h5 class="text-center mb-5" style="letter-spacing: 2px;">FEEDBACK</h5>  
       <div class="d-flex justify-content-center">
-        <div class="card text-center border-0 shadow rounded-0 p-4 pt-2 h-100 w-100" style="width: 700px !important;">
+        <div class="card text-center border-0 shadow rounded-0 p-4 pt-2 h-100 w-100" style="width: 700px !important; background-color: #fcfdff;">
           <div class="card-body">
             <h4 class="card-title border-bottom pb-3 mb-3 px-5">Thanks for visit, <span class="text-danger">{{ name }}</span> !!</h4> 
             <form method="post" action="http://mercury.swin.edu.au/it000000/formtest.php">

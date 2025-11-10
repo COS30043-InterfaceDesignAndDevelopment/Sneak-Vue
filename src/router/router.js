@@ -28,6 +28,18 @@ const routes = [
     props: true            
   },
   { 
+    path: '/favorites', 
+    name: 'favorites', 
+    component: () => import('../views/Favorites.vue'),
+    meta: { requireAuth: true } 
+  },
+  { 
+    path: '/cart', 
+    name: 'cart', 
+    component: () => import('../views/Cart.vue'),
+    meta: { requireAuth: true } 
+  },
+  { 
     path: '/login', 
     name: 'login', 
     component: () => import('../views/Login.vue') 

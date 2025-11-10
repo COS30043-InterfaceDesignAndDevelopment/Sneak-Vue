@@ -16,15 +16,16 @@
 
           <!-- Image Column -->
           <div class="col-md-6 d-flex justify-content-end position-relative">
-            <div class="position-relative">
-              <div class="position-absolute bottom-0 start-0 shadow-circle" style="transform: translate(35%, 80%);"></div>
+            <div class="position-relative"> 
+              <div class="shadow-wrapper position-absolute bottom-0 start-0" style="transform: translate(35%, 80%);">
+                <div class="shadow-circle"></div>
+              </div>
+ 
               <img
                 src="../assets/images/nike-jordan.png"
                 alt="Event Image"
                 class="img-fluid position-relative"
-                style="transition: transform 0.3s ease; z-index: 2; width: 450px;"
-                onmouseover="this.style.transform='scale(1.05)';"
-                onmouseout="this.style.transform='scale(1)';"
+                style="z-index: 2; width: 450px;"
               />
             </div>
           </div>
@@ -128,15 +129,7 @@
 
 
 
-<style scoped>
-  .shadow-circle {
-    width: 300px;
-    height: 45px;
-    background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0) 70%);
-    border-radius: 50%;
-    filter: blur(8px);
-    opacity: 0.6;
-  }
+<style scoped> 
 
   .subtitle {
     font-size: 1.2rem;
@@ -173,12 +166,55 @@
     content: "";
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.459); 
+    background: #00000075; 
     z-index: 0;
   }
 
   .full-image-section h1 {
     position: relative;  
     z-index: 1;
+  }
+
+  .img-fluid {
+    display: inline-block;
+    animation: moveUpDown 2s ease-in-out infinite;
+  }
+
+  @keyframes moveUpDown {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-12px);
+    }
+  }
+  
+  .shadow-wrapper {
+    pointer-events: none;
+    position: absolute;
+  }
+  
+  .shadow-circle {
+    width: 300px;
+    height: 45px;
+    background: radial-gradient(ellipse at center, #000000b3 0%, #00000000 70%);
+    border-radius: 50%;
+    filter: blur(8px);
+    opacity: 0.6;
+    transform-origin: center top; 
+    animation: shadowPulse 2s ease-in-out infinite;
+  }
+  
+  @keyframes shadowPulse {
+    0%, 100% {
+      opacity: 0.6;
+      transform: scale(1);
+      filter: blur(8px);
+    }
+    50% {
+      opacity: 0.3;
+      transform: scale(1.2);
+      filter: blur(10px);
+    }
   }
 </style>

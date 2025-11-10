@@ -5,6 +5,7 @@
         <!-- Toggler -->
         <button
           class="navbar-toggler"
+          :class="authStore.isAuthenticated ? 'me-5' : ''"
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#navbarNav"
@@ -22,8 +23,21 @@
         </a>
 
         <!-- Login buttons -->
-        <div class="d-flex ms-auto">
-          <router-link class="nav-link" :to="authenticatedPath"><i class="bi bi-person" style="font-size: 1.75rem;"></i></router-link> 
+        <div class="d-flex ms-auto gap-3">
+          <router-link class="nav-link" :to="authenticatedPath"><i class="bi bi-person-circle" style="font-size: 1.45rem;"></i></router-link>  
+          <div v-if="authStore.isAuthenticated">
+            <router-link class="nav-link position-relative" to="/favorites">
+              <i class="bi bi-suit-heart" style="font-size: 1.45rem;"></i> 
+              <span v-if="favoriteStore.favoriteLength > 0" class="badge-count">{{ favoriteStore.favoriteLength }}</span>
+            </router-link>
+          </div>
+ 
+          <div v-if="authStore.isAuthenticated"> 
+            <router-link class="nav-link position-relative" to="/cart">
+              <i class="bi bi-bag" style="font-size: 1.45rem;"></i> 
+              <span v-if="cartItemStore.cartLength > 0" class="badge-count">{{ cartItemStore.cartLength }}</span>
+            </router-link>
+          </div>
         </div>
       </div>
 
@@ -90,29 +104,20 @@
   import { ref, onMounted, onUnmounted, onBeforeUnmount, computed } from 'vue';
   import mockData from '../assets/data/mock-sneaker-data.json';
   import { useAuthStore } from '../stores/auth';
- 
+  import { useCartItemStore } from '../stores/cartItems';
+  import { useFavoriteStore } from '../stores/favorites';
+
   const data = ref([]);
   const authStore = useAuthStore();
+  const cartItemStore = useCartItemStore();
+  const favoriteStore = useFavoriteStore();
   const dataGender = ref(['Men', 'Women', 'Unisex']);
   const showNavbar = ref(true);
   const lastScrollPosition = ref(0); 
   const width = ref(window.innerWidth);
 
 
-  onMounted(() => {
-    data.value = mockData.map(d => d);
-    window.addEventListener('scroll', handleScroll);
-    window.addEventListener('resize', handleResize);
-  });
-
-  onUnmounted(() => {
-    window.removeEventListener('resize', handleResize);
-  })
-
-  onBeforeUnmount(() => {
-    window.removeEventListener('scroll', handleScroll);
-  })
-
+  const userId = computed(() => authStore.user?.user_metadata?.sub);
   const authenticatedPath = computed(() => authStore.isAuthenticated ? '/user' : '/login');
   const isMobile = computed(() => width.value < 992);
   const dropdownToggle = computed(() => (isMobile.value ? 'dropdown' : ''));
@@ -129,7 +134,7 @@
     }
     
     return filteredType;
-  }
+  };
 
   const handleScroll = () => {
     const currentScrollPosition = window.pageYOffset || document.documentElement.scrollTop;
@@ -140,7 +145,24 @@
 
     showNavbar.value = currentScrollPosition < lastScrollPosition.value || currentScrollPosition === 0;
     lastScrollPosition.value = currentScrollPosition;
-  }
+  };
+
+
+  onMounted(() => {
+    data.value = mockData.map(d => d);
+    cartItemStore.fetchCartItems(userId.value);
+    favoriteStore.fetchFavorites(userId.value);
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleResize);
+  });
+
+  onUnmounted(() => {
+    window.removeEventListener('resize', handleResize);
+  })
+
+  onBeforeUnmount(() => {
+    window.removeEventListener('scroll', handleScroll);
+  })
 </script>
  
 
@@ -321,4 +343,22 @@
       font-size: 1.2rem;
     }
   }
+
+  .badge-count {
+    position: absolute;
+    top: -4px;
+    right: -6px;
+    background: #dc3545;
+    color: white;
+    border-radius: 50%;
+    font-size: 0.65rem;
+    min-width: 17px;
+    height: 17px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 0 0 2px;
+    font-weight: bold;
+  }
+
 </style>

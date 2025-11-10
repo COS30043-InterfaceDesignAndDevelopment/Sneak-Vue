@@ -245,8 +245,7 @@
 
 <style scoped> 
   .heading {
-    font-size: 35px;
-    font-weight: bolder; 
+    font-size: 35px; 
     color: #000; 
   }
 
