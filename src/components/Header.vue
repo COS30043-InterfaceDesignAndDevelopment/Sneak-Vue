@@ -1,5 +1,5 @@
 <template>
-  <nav :class="['navbar', { 'navbar-hidden': !showNavbar }]" class="navbar-expand-lg navbar-light mb-5">
+  <nav :class="['navbar', { 'navbar-hidden': !showNavbar }]" class="navbar-expand-lg navbar-light">
     <div class="container p-1 position-relative">
       <div class="d-flex w-100 align-items-center">
         <!-- Toggler -->

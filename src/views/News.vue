@@ -1,98 +1,124 @@
 <template>
-  <div class="container mb-5">    
-    <h3 class="text-center mb-5" style="letter-spacing: 2px;">UPDATE NEWS</h3> 
+  <div class="container-fluid px-0">    
+    <div class="hero-section">
+      <div class="container pb-3 pt-5">
+        <h1 class="display-6 text-center mb-2">NEWS FEED</h1>
+        <p class="lead text-center mb-0">Stay updated with the latest articles</p>
+      </div>
+    </div>
 
-    <div class="row">
-      <div class="col-lg-6 col-xl-4 mb-3">
-        <div class="card shadow-sm border-0 rounded-0 sticky-top pb-3" style="top: 20px; z-index: 1;">
-          <h5 class="text-center" style="letter-spacing: 2px; margin-top: 2rem;">Find articles</h5> 
-          <div class="p-4 pt-2 pb-2 mx-auto w-100" style="max-width: 500px;">
-            <div class="input-group">
-              <input type="text" class="form-control" placeholder="Search..." aria-label="Search" aria-describedby="search-addon" v-model="searchInfo" @input="searchNews">
-              <button class="btn btn-outline-secondary" type="button" id="search-addon">
-                <i class="bi bi-search"></i>
-              </button>
+    <div class="container my-5">
+      <div class="row g-3">
+        <!-- Search & Filter Sidebar -->
+        <div class="col-lg-4">
+          <div class="search-panel">
+            <h5 class="fw-bold mb-4 text-uppercase ls-2">Search Articles</h5>
+            
+            <!-- Search Input -->
+            <div class="search-box mb-4">
+              <input 
+                type="text" 
+                class="form-control form-control-lg" 
+                placeholder="Type to search..." 
+                v-model="searchInfo" 
+                @input="searchNews"
+              >
+              <i class="bi bi-search search-icon"></i>
             </div>
-          </div>
 
-          <div class="p-4 d-flex flex-wrap justify-content-center gap-2">
-            <div>
-              <input type="radio" class="btn-check" name="options-outlined" id="all" value="all" v-model="filterItem" autocomplete="off" checked @change="searchNews">
-              <label class="btn btn-outline-dark text-nowrap" for="all">All</label>
-            </div>
-            <div>
-              <input type="radio" class="btn-check" name="options-outlined" id="title" value="title" v-model="filterItem" autocomplete="off" @change="searchNews">
-              <label class="btn btn-outline-dark text-nowrap" for="title">Title</label>
-            </div>
-            <div>
-              <input type="radio" class="btn-check" name="options-outlined" id="content" value="content" v-model="filterItem" autocomplete="off" @change="searchNews">
-              <label class="btn btn-outline-dark text-nowrap" for="content">Content</label>
-            </div>
-            <div>
-              <input type="radio" class="btn-check" name="options-outlined" id="category" value="category" v-model="filterItem" autocomplete="off" @change="searchNews">
-              <label class="btn btn-outline-dark text-nowrap" for="category">Category</label>
-            </div>
-            <div>
-              <input type="radio" class="btn-check" name="options-outlined" id="date" value="date" v-model="filterItem" autocomplete="off" @change="searchNews">
-              <label class="btn btn-outline-dark text-nowrap" for="date">Date</label>
-            </div>
-          </div>
+            <!-- Filter Options -->
+            <div class="filter-section mb-4">
+              <label class="form-label fw-bold text-uppercase small mb-3">Filter By</label>
+              <div class="d-grid gap-2">
+                <input type="radio" class="btn-check" name="filter" id="all" value="all" v-model="filterItem" @change="searchNews" checked>
+                <label class="filter-btn" for="all">
+                  <i class="bi bi-grid-3x3-gap-fill me-2"></i>All Fields
+                </label>
 
-          <div class="ps-4">
-            <p>{{ filteredNews.length }} articles found.</p>
+                <input type="radio" class="btn-check" name="filter" id="title" value="title" v-model="filterItem" @change="searchNews">
+                <label class="filter-btn" for="title">
+                  <i class="bi bi-text-left me-2"></i>Title
+                </label>
+
+                <input type="radio" class="btn-check" name="filter" id="content" value="content" v-model="filterItem" @change="searchNews">
+                <label class="filter-btn" for="content">
+                  <i class="bi bi-file-text me-2"></i>Content
+                </label>
+
+                <input type="radio" class="btn-check" name="filter" id="category" value="category" v-model="filterItem" @change="searchNews">
+                <label class="filter-btn" for="category">
+                  <i class="bi bi-tag-fill me-2"></i>Category
+                </label>
+
+                <input type="radio" class="btn-check" name="filter" id="date" value="date" v-model="filterItem" @change="searchNews">
+                <label class="filter-btn" for="date">
+                  <i class="bi bi-calendar-event me-2"></i>Date
+                </label>
+              </div>
+            </div>
+
+            <!-- Results Count -->
+            <div class="results-count">
+              <span class="fw-bold">{{ filteredNews.length }}</span> articles found
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="col-lg-6 col-xl-8">
-        <div class="card p-4 shadow-sm border-0 rounded-0">
-          <div 
-            v-for="(newItem, index) in paginatedItems"
-            :key="index"
-            class=""
-          >
-            <div class="news-item">
-              <div class="d-flex justify-content-between align-items-start mb-2">
-                <span class="badge bg-warning">{{ newItem.category }}</span>
-                <small class="text-muted">{{ newItem.date }}</small>
-              </div>
-              <h5 class="mb-2">{{ newItem.title }}</h5>
-              <p class="text-muted mb-0">{{ newItem.content }}</p>
-            </div>
-            <hr class="text-black-50"></hr> 
-          </div>
-
-          <!-- Pagination controls -->
-          <div class="pagination-controls p-3">
-            <button 
-              @click="prevPage" 
-              :disabled="currentPage === 1" 
-              style="clip-path: polygon(15% 0, 100% 0, 100% 100%, 0 100%); padding-left: 22px;"
-              >Previous
-            </button>
-            <button
-              v-for="page in totalPages"
-              :key="page"
-              @click="goToPage(page)"
-              :class="{ active: currentPage === page }"
+        <!-- News List -->
+        <div class="col-lg-8">
+          <div class="news-container">
+            <div 
+              v-for="(newItem, index) in paginatedItems"
+              :key="index"
+              class="news-card"
             >
-              {{ page }}
-            </button>
-            <button 
-              @click="nextPage" 
-              :disabled="currentPage === totalPages" 
-              style="clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 100%, 0 100%); padding-right: 22px;"
-              >Next
-            </button>
+              <div class="news-header">
+                <span class="category-badge">{{ newItem.category }}</span>
+                <span class="news-date">
+                  <i class="bi bi-calendar3 me-1"></i>{{ newItem.date }}
+                </span>
+              </div>
+              <h4 class="news-title">{{ newItem.title }}</h4>
+              <p class="news-content">{{ newItem.content }}</p>
+            </div>
+
+            <!-- Pagination -->
+            <nav class="pagination-nav mt-5" v-if="totalPages > 1">
+              <ul class="pagination-list">
+                <li>
+                  <button 
+                    @click="prevPage" 
+                    :disabled="currentPage === 1"
+                    class="page-btn page-prev"
+                  >
+                    <i class="bi bi-chevron-left"></i>
+                  </button>
+                </li>
+                <li v-for="page in totalPages" :key="page">
+                  <button
+                    @click="goToPage(page)"
+                    :class="['page-btn', { 'active': currentPage === page }]"
+                  >
+                    {{ page }}
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    @click="nextPage" 
+                    :disabled="currentPage === totalPages"
+                    class="page-btn page-next"
+                  >
+                    <i class="bi bi-chevron-right"></i>
+                  </button>
+                </li>
+              </ul>
+            </nav>
           </div>
         </div>
       </div>
     </div>
-
   </div>
 </template>
-
-
 
 <script setup>
   import { ref, onMounted, computed } from 'vue';
@@ -152,73 +178,202 @@
   }
 </script>
 
+<style scoped> 
+  .hero-section .lead { 
+    font-size: 1.1rem;
+  }
 
+  .ls-2 {
+    letter-spacing: 2px;
+  }
 
-<style scoped>
-  .subtitle {
+  .search-panel {
+    background: #ffffff;
+    border: 2px solid #e8e8e8;
+    padding: 2rem;
+    position: sticky;
+    top: 20px;
+  }
+
+  .search-box {
+    position: relative;
+  }
+
+  .search-box input {
+    border: 1px solid #2d2d2d;
+    border-radius: 0px;
+    padding: 0.75rem 3rem 0.75rem 1rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .search-box input:focus {
+    border-color: #b11414;
+    box-shadow: 0 0 0 3px rgba(177, 20, 20, 0.08);
+  }
+
+  .search-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
     font-size: 1.2rem;
-    font-weight: bold;
-    color: #666; 
   }
 
-  .badge-news { 
-    background-color: #ddba20; 
+  .filter-section label.form-label {
+    color: #2d2d2d;
+    letter-spacing: 1px;
   }
 
-  .heading {
-    font-size: 64px;
-    font-weight: bolder;
-    line-height: 1.1;
-    color: #000; 
+  .filter-btn {
+    display: flex;
+    align-items: center;
+    padding: 0.875rem 1.25rem;
+    background: #fafafa;
+    border: 2px solid #e8e8e8;
+    color: #2d2d2d;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
   }
 
-  .card {
-    background-color: #fcfdff; 
+  .filter-btn:hover {
+    background: #2d2d2d;
+    color: white;
+    border-color: #2d2d2d;
   }
 
-  .card .input-group {
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  .btn-check:checked + .filter-btn {
+    background: #2d2d2d;
+    color: white;
+    border-color: #2d2d2d;
+    border-left: 3px solid #b11414;
   }
 
-  .card .form-control {
-    border: none;
-    padding-left: 20px;
+  .results-count {
+    padding: 1rem;
+    background: #fafafa;
+    border-left: 3px solid #b11414;
+    font-size: 0.95rem;
+    color: #666;
   }
 
-  .card .btn {
-    border: none;
-    border-radius: 0;
-    padding: 10px 20px;
+  .results-count .fw-bold {
+    color: #2d2d2d;
   }
 
-  .pagination-controls {
+  .news-container {
+    background: #ffffff;
+    border: 2px solid #e8e8e8;
+    padding: 2rem;
+  }
+
+  .news-card {
+    padding: 2rem 0;
+    border-bottom: 1px solid #e8e8e8;
+    transition: all 0.3s ease;
+  }
+
+  .news-card:first-child {
+    padding: 0 0 2rem;
+  }
+
+  .news-card:last-child {
+    border-bottom: none;
+  }
+
+  .news-card:hover {
+    transform: translateX(8px);
+    border-left: 3px solid #b11414;
+    padding-left: 1rem;
+  }
+
+  .news-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .category-badge {
+    display: inline-block;
+    padding: 0.375rem 1rem;
+    background: #e9b006;
+    color: white;
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .news-date {
+    color: #999;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .news-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 0.75rem;
+    line-height: 1.3;
+    transition: color 0.3s ease;
+  }
+
+  .news-card:hover .news-title {
+    color: #b11414;
+  }
+
+  .news-content {
+    color: #666;
+    line-height: 1.7;
+    margin: 0;
+  } 
+
+  .pagination-list {
     display: flex;
     justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
   }
 
-  .pagination-controls button {
-    margin: 0 5px;
-    padding: 8px 12px;
+  .page-btn {
+    min-width: 45px;
+    height: 45px;
+    border: 1px solid #2d2d2d;
+    background: white;
+    color: #2d2d2d;
+    font-weight: 600;
     cursor: pointer;
-    border: none;
-    border-radius: 0;
+    transition: all 0.2s ease;
   }
 
-  .pagination-controls button.active {
-    background-color: #b11414;
+  .page-btn:hover:not(:disabled) {
+    background: #2d2d2d;
     color: white;
   }
 
-  .pagination-controls button:disabled {
+  .page-btn.active {
+    background: #b11414;
+    border-color: #b11414;
+    color: white;
+  }
+
+  .page-btn:disabled {
+    opacity: 0.3;
     cursor: not-allowed;
   }
 
-  @media (min-width: 992px) {
-    .subtitle {
-      padding-left: 7rem;
-      padding-right: 7rem;
+  @media (max-width: 991px) {
+    .search-panel {
+      position: static;
+      margin-bottom: 2rem;
     }
   }
 </style>

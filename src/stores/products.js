@@ -17,8 +17,7 @@ export const useProductStore = defineStore('products', () => {
       products.value = await res.json();
     } catch (e) {
       console.error('Error fetching all products:', e); 
-      error.value = 'Failed to fetch all products information';
-      alert('Failed to fetch all products information');
+      error.value = 'Failed to fetch all products information'; 
     } finally {
       isLoadingDataset.value = false;
     }

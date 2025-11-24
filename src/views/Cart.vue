@@ -1,5 +1,5 @@
 <template>
-  <div class="container mb-5">
+  <div class="container my-5">
     <h1 class="mb-4">Shopping Cart</h1>
 
     <!-- Loading State -->

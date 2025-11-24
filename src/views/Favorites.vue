@@ -1,5 +1,5 @@
 <template>
-  <div class="container mb-5">
+  <div class="container my-5">
     <h1 class="mb-4">My Favorites</h1>
 
     <!-- Loading State -->
@@ -25,7 +25,7 @@
           <div class="position-relative">
             <img :src="item.image_url" :alt="item.name" class="card-img-top favorite-image">
             <button 
-              @click="handleRemove(item.favorite_id)" 
+              @click.stop="handleRemove(item.favorite_id)" 
               class="btn btn-danger btn-sm remove-btn py-auto px-auto"
               :disabled="favoriteStore.isWorking"
             >

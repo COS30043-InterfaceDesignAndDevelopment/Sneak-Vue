@@ -1,7 +1,7 @@
 <template>
-  <div class="container mb-5"> 
-    <div class="d-flex align-items-center">
-      <h1 class="heading">NEW-INS <span class="h6 text-muted">[{{ filteredProducts.length }}]</span></h1>
+  <div class="container my-5"> 
+    <div class="d-flex align-items-center py-4">
+      <h1 class="heading display-6">NEW-INS <span class="h6">[{{ filteredProducts.length }}]</span></h1>
       <button 
         @click="toggleSidebar" 
         class="btn btn-filter border-black px-4 rounded-0 ms-auto"
@@ -244,8 +244,7 @@
 
 
 <style scoped> 
-  .heading {
-    font-size: 35px; 
+  .heading { 
     color: #000; 
   }
 

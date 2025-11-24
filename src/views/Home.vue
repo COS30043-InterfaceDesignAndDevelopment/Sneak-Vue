@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="container">
+    <div class="container mt-5">
       <!-- Section: Introduction -->
       <div class="position-relative mb-5" style="z-index: 1;">
         <div class="row g-5 align-items-center min-vh-75">

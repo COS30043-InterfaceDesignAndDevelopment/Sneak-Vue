@@ -24,8 +24,7 @@ export const useCartItemStore = defineStore('cart-items', () => {
       cartItems.value = await res.json();
     } catch (e) {
       console.error('Error fetching cart items:', e); 
-      error.value = 'Failed to fetch cart items';
-      alert('Failed to fetch cart items');
+      error.value = 'Failed to fetch cart items'; 
     } finally {
       isLoadingCartItems.value = false;
     }

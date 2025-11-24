@@ -10,6 +10,34 @@
         </div>
       </div>
 
+      <!-- Rating Summary -->
+      <div v-if="!reviewStore.isLoading && reviewStore.reviews.length > 0" class="rating-summary-card mb-4">
+        <div class="row align-items-center">
+          <div class="col-md-4 text-center border-end">
+            <h1 class="display-3 fw-bold mb-0">{{ averageRating }}</h1>
+            <div class="rating-stars mb-2">
+              <i v-for="n in 5" :key="n" class="me-1" 
+                :class="n <= Math.round(averageRating) ? 'bi bi-star-fill' : 'bi bi-star'"></i>
+            </div>
+            <p class="text-muted my-2">Based on {{ reviewStore.reviews.length }} review{{ reviewStore.reviews.length !== 1 ? 's' : '' }}</p>
+          </div>
+          <div class="col-md-8 ps-4">
+            <div v-for="starLevel in [5, 4, 3, 2, 1]" :key="starLevel" class="rating-bar-row mb-2">
+              <div class="d-flex align-items-center">
+                <div class="rating-label-stars">
+                  <i v-for="n in 5" :key="n" class="pe-2"
+                    :class="n <= starLevel ? 'bi bi-star-fill' : 'bi bi-star'"></i>
+                </div>
+                <div class="rating-bar-container">
+                  <div class="rating-bar-fill" :style="{ width: getStarPercentage(starLevel) + '%' }"></div>
+                </div>
+                <span class="rating-count">{{ getStarCount(starLevel) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Write Review -->
       <div class="write-review-card">
         <h5 class="fw-bold mb-3">Write a Review</h5>
@@ -93,6 +121,21 @@
  
 
   const currentUserId = computed(() => authStore.user?.user_metadata?.sub || null);
+
+  const averageRating = computed(() => {
+    if (reviewStore.reviews.length === 0) return 0;
+    const sum = reviewStore.reviews.reduce((acc, review) => acc + review.rating, 0);
+    return (sum / reviewStore.reviews.length).toFixed(1);
+  });
+
+  const getStarCount = (stars) => {
+    return reviewStore.reviews.filter(review => review.rating === stars).length;
+  };
+
+  const getStarPercentage = (stars) => {
+    if (reviewStore.reviews.length === 0) return 0;
+    return (getStarCount(stars) / reviewStore.reviews.length) * 100;
+  };
 
   const submitReview = async () => {
     // Check authentication
@@ -232,6 +275,57 @@
     border-color: #000;
     background-color: #000;
     color: #fff;
+  }
+
+  .rating-summary-card {
+    background: #f9fafb;
+    border-radius: 0;
+    padding: 30px;
+    border: 1px solid #e5e7eb;
+    box-shadow: none;
+  }
+
+  .rating-summary-card .display-3 {
+    color: #000;
+  }
+
+  .rating-bar-row {
+    display: flex;
+    align-items: center;
+  }
+
+  .rating-label-stars {
+    width: 150px;
+    text-align: right;
+    margin-right: 15px;
+  }
+
+  .rating-label-stars i {
+    font-size: 0.85rem;
+    color: #000;
+    margin-right: 2px;
+  }
+
+  .rating-bar-container {
+    flex: 1;
+    height: 8px;
+    background-color: #e5e7eb;
+    border-radius: 0;
+    overflow: hidden;
+    margin: 0 10px;
+  }
+
+  .rating-bar-fill {
+    height: 100%;
+    background-color: #000;
+    transition: width 0.3s ease;
+  }
+
+  .rating-count {
+    font-size: 0.9rem;
+    font-weight: 600;
+    width: 40px;
+    text-align: left;
   }
  
 </style>

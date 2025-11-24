@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container mt-5">
     <div class="row" style="min-height: 55vh; margin-bottom: 7rem;">
       <!-- Left Column - Image/Branding -->
       <div class="col-lg-6 d-flex align-items-center justify-content-center px-3">

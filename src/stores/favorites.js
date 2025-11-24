@@ -20,8 +20,7 @@ export const useFavoriteStore = defineStore('favorites', () => {
       favorites.value = await res.json();
     } catch (e) {
       console.error('Error fetching favorites list:', e); 
-      error.value = 'Failed to fetch favorites list';
-      alert('Failed to fetch favorites list');
+      error.value = 'Failed to fetch favorites list'; 
     } finally {
       isLoadingFavorites.value = false;
     }

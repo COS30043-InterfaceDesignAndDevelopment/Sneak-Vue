@@ -1,5 +1,5 @@
 <template>
-  <div class="container mb-5">
+  <div class="container my-5">
     <!-- Loading State -->
     <div v-if="authStore.isLoading" class="text-center py-5">
       <div class="spinner-border text-danger" role="status">
@@ -46,7 +46,7 @@
             <h6 class="card-subtitle mb-3 text-muted">Your Stats</h6>
             <div class="d-flex justify-content-between mb-2">
               <span>Cart items</span>
-              <strong>12</strong>
+              <strong>{{ cartItemStore.cartLength }}</strong>
             </div> 
             <div class="d-flex justify-content-between mb-2">
               <span>Favorite Items</span>
@@ -103,9 +103,11 @@
   import { useRouter } from 'vue-router';
   import { useAuthStore } from '../stores/auth';
   import { useFavoriteStore } from '../stores/favorites';
+  import { useCartItemStore } from '../stores/cartItems';
   
   const authStore = useAuthStore();
   const favoriteStore = useFavoriteStore();
+  const cartItemStore = useCartItemStore();
   const router = useRouter();
   const creationYear = ref();
 
